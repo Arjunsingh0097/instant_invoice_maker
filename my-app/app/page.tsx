@@ -128,16 +128,16 @@ export default function InvoiceMaker() {
                 "Company Address\nCity, State ZIP\nPhone: (555) 123-4567"
               }</div>
             </div>
-            <div style="text-align: right; flex: 1;">
-              <div style="display: flex; flex-direction: column; align-items: flex-end; margin-bottom: 20px;">
-                <div style="font-size: 36px; font-weight: bold; color: #333;">${invoiceType}</div>
-                ${
-                  logo
-                    ? `<img src="${logo}" style="max-width: 120px; max-height: 60px; margin-top: 8px;" />`
-                    : ""
-                }
+                          <div style="text-align: center; flex: 1;">
+                <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; margin-right: 20px;">
+                  <div style="font-size: 36px; font-weight: bold; color: #333;">${invoiceType}</div>
+                  ${
+                    logo
+                      ? `<img src="${logo}" style="max-width: 150px; max-height: 150px; margin-top: 20px; border-radius: 50%; object-fit: cover;" />`
+                      : ""
+                  }
+                </div>
               </div>
-            </div>
           </div>
 
           <!-- Invoice Details and Total -->
@@ -341,7 +341,7 @@ export default function InvoiceMaker() {
             .company-info { flex: 1; }
             .company-name { font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #333; }
             .company-details { font-size: 14px; color: #666; line-height: 1.4; }
-            .invoice-header { text-align: right; flex: 1; }
+            .invoice-header { text-align: center; flex: 1; }
             .invoice-title { font-size: 36px; font-weight: bold; color: #333; margin-bottom: 8px; }
             .invoice-details { display: flex; justify-content: space-between; margin-bottom: 40px; }
             .bill-to { flex: 1; }
@@ -387,10 +387,10 @@ export default function InvoiceMaker() {
                 }</div>
               </div>
               <div class="invoice-header">
-                <div class="invoice-title">${invoiceType}</div>
+                <div class="invoice-title" style="margin-bottom: 20px;">${invoiceType}</div>
                 ${
                   logo
-                    ? `<img src="${logo}" style="max-width: 120px; max-height: 60px; margin-top: 8px;" />`
+                    ? `<img src="${logo}" style="max-width: 150px; max-height: 150px; border-radius: 50%; object-fit: cover;" />`
                     : ""
                 }
               </div>
@@ -502,16 +502,7 @@ export default function InvoiceMaker() {
               </div>
             </div>
             
-            <div class="footer">
-              <div>Page 1 of 1</div>
-              <div class="footer-brand">
-                <span>Made With</span>
-                <div class="brand-icon">
-                  <span>✓</span>
-                </div>
-                <span>Invoice Maker</span>
-              </div>
-            </div>
+         
           </div>
         </body>
         </html>
@@ -573,7 +564,7 @@ export default function InvoiceMaker() {
                     <select
                       value={invoiceType}
                       onChange={(e) => setInvoiceType(e.target.value)}
-                      className="w-full px-4 py-3 glass-input rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-400/50"
+                      className="w-full px-4 py-3 glass-input rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-400/50 [&>option]:bg-gray-800 [&>option]:text-white"
                     >
                       <option value="Invoice">Invoice</option>
                       <option value="Quote">Quote</option>
@@ -632,7 +623,7 @@ export default function InvoiceMaker() {
                     <select
                       value={terms}
                       onChange={(e) => setTerms(e.target.value)}
-                      className="w-full px-4 py-3 glass-input rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-400/50"
+                      className="w-full px-4 py-3 glass-input rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-400/50 [&>option]:bg-gray-800 [&>option]:text-white"
                     >
                       <option value="Due On Receipt">Due On Receipt</option>
                       <option value="Net 15">Net 15</option>
