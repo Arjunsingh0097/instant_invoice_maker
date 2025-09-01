@@ -111,7 +111,7 @@ export default function TaxDiscountSection({
       <div className="border-t border-white/20 pt-4">
         <div className="flex justify-between items-center p-4 glass rounded-lg neon-border">
           <span className="text-white font-semibold text-xl">Total:</span>
-          <span className="gradient-text font-bold text-2xl">${total.toFixed(2)}</span>
+          <span className="text-white font-bold text-3xl drop-shadow-lg">${total.toFixed(2)}</span>
         </div>
       </div>
 

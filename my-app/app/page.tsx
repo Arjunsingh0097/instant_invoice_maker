@@ -160,11 +160,11 @@ export default function InvoiceMaker() {
                 ).toLocaleDateString()}</div>
               </div>
             </div>
-            <div style="text-align: right; flex: 1;">
-              <div style="font-size: 18px; margin-bottom: 10px; color: #333;">Invoice Total:</div>
-              <div style="font-size: 32px; font-weight: bold; color: #333;">$${total.toFixed(
-                2
-              )}</div>
+            <div style="text-align: center; flex: 1;">
+              <div style="margin-top: 60px;">
+                <div style="font-size: 18px; margin-bottom: 5px; color: #333;">Invoice Total:</div>
+                <div style="font-size: 32px; font-weight: bold; color: #333;">$${total.toFixed(2)}</div>
+              </div>
             </div>
           </div>
 
@@ -414,8 +414,10 @@ export default function InvoiceMaker() {
                 </div>
               </div>
               <div class="invoice-total">
-                <div class="total-label">Invoice Total:</div>
-                <div class="total-amount">$${total.toFixed(2)}</div>
+                <div style="margin-top: 60px; text-align: center;">
+                  <div style="font-size: 18px; margin-bottom: 5px; color: #333;">Invoice Total:</div>
+                  <div style="font-size: 32px; font-weight: bold; color: #333;">$${total.toFixed(2)}</div>
+                </div>
               </div>
             </div>
             
