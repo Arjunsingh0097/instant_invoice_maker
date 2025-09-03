@@ -16,6 +16,8 @@ import {
   Receipt,
   Clock,
   DollarSign,
+  Mail,
+  Loader2,
 } from "lucide-react";
 import { format } from "date-fns";
 import LogoUpload from "./components/LogoUpload";
@@ -45,6 +47,8 @@ export default function InvoiceMaker() {
   const [taxRate, setTaxRate] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [shipping, setShipping] = useState(0);
+  const [clientEmail, setClientEmail] = useState("");
+  const [isEmailSending, setIsEmailSending] = useState(false);
   const [items, setItems] = useState<InvoiceItem[]>([
     {
       id: "1",
@@ -325,6 +329,59 @@ export default function InvoiceMaker() {
     }
   };
 
+  const handleSendEmail = async () => {
+    if (!clientEmail) {
+      alert("Please enter the client's email address");
+      return;
+    }
+
+    if (!clientEmail.includes("@")) {
+      alert("Please enter a valid email address");
+      return;
+    }
+
+    setIsEmailSending(true);
+
+    try {
+      // Send email without PDF attachment first (faster)
+      const response = await fetch("/api/send-email", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          to: clientEmail,
+          invoiceNumber,
+          invoiceType,
+          fromDetails,
+          toDetails,
+          total,
+          invoiceDate,
+          items,
+          taxRate,
+          discount,
+          shipping,
+          extraNotes,
+          logo,
+          // No PDF attachment for faster sending
+        }),
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        alert("Invoice sent successfully via email!");
+      } else {
+        alert(`Error sending email: ${result.error}`);
+      }
+    } catch (error) {
+      console.error("Error sending email:", error);
+      alert("Error sending email. Please try again.");
+    } finally {
+      setIsEmailSending(false);
+    }
+  };
+
   const handlePreviewInvoice = () => {
     // Open preview in new window
     const previewWindow = window.open("", "_blank", "width=800,height=600");
@@ -599,6 +656,20 @@ export default function InvoiceMaker() {
                       className="w-full px-4 py-3 glass-input rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400/50 h-32 resize-none"
                     />
                   </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-white/80 mb-3 flex items-center gap-2">
+                      <User className="h-4 w-4" />
+                      Client Email
+                    </label>
+                    <input
+                      type="email"
+                      value={clientEmail}
+                      onChange={(e) => setClientEmail(e.target.value)}
+                      placeholder="client@example.com"
+                      className="w-full px-4 py-3 glass-input rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400/50"
+                    />
+                  </div>
                 </div>
 
                 {/* Right Column */}
@@ -814,6 +885,27 @@ export default function InvoiceMaker() {
               >
                 <Download className="h-5 w-5" />
                 Generate Invoice
+              </button>
+              <button
+                onClick={handleSendEmail}
+                disabled={isEmailSending}
+                className={`w-full flex items-center justify-center gap-3 px-6 py-4 rounded-xl transition-all duration-300 font-semibold shadow-lg hover:shadow-xl ${
+                  isEmailSending
+                    ? "bg-gray-500 cursor-not-allowed opacity-70"
+                    : "bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700"
+                }`}
+              >
+                {isEmailSending ? (
+                  <>
+                    <Loader2 className="h-5 w-5 animate-spin" />
+                    Sending Email...
+                  </>
+                ) : (
+                  <>
+                    <Mail className="h-5 w-5" />
+                    Send Invoice via Email
+                  </>
+                )}
               </button>
               <button
                 onClick={handlePreviewInvoice}
