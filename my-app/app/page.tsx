@@ -116,40 +116,40 @@ export default function InvoiceMaker() {
       invoiceDiv.style.color = "#333";
 
       invoiceDiv.innerHTML = `
-        <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: white; color: #333;">
+        <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: white; color: #333; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
           <!-- Header Section -->
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
             <div style="flex: 1;">
-              <div style="font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #333;">${
+              <div style="font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #000; text-rendering: optimizeLegibility;">${
                 fromDetails.split("\n")[0] || "Company Name"
               }</div>
-              <div style="font-size: 14px; color: #666; line-height: 1.4; white-space: pre-line;">${
+              <div style="font-size: 14px; color: #333; line-height: 1.4; white-space: pre-line; text-rendering: optimizeLegibility;">${
                 fromDetails ||
                 "Company Address\nCity, State ZIP\nPhone: (555) 123-4567"
               }</div>
             </div>
-                          <div style="text-align: center; flex: 1;">
-                <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; margin-right: 20px;">
-                  <div style="font-size: 36px; font-weight: bold; color: #333;">${invoiceType}</div>
-                  ${
-                    logo
-                      ? `<img src="${logo}" style="max-width: 150px; max-height: 150px; margin-top: 20px; border-radius: 50%; object-fit: cover;" />`
-                      : ""
-                  }
-                </div>
+            <div style="text-align: center; flex: 1;">
+              <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; margin-right: 20px;">
+                <div style="font-size: 36px; font-weight: bold; color: #000; text-rendering: optimizeLegibility;">${invoiceType}</div>
+                ${
+                  logo
+                    ? `<img src="${logo}" style="max-width: 150px; max-height: 150px; margin-top: 20px; border-radius: 50%; object-fit: cover; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />`
+                    : ""
+                }
               </div>
+            </div>
           </div>
 
           <!-- Invoice Details and Total -->
           <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
             <div style="flex: 1;">
               <div style="margin-bottom: 20px;">
-                <h3 style="font-size: 18px; margin: 0 0 10px 0; color: #333;">Bill To:</h3>
-                <div style="font-size: 14px; color: #666; line-height: 1.4; white-space: pre-line;">${
+                <h3 style="font-size: 18px; margin: 0 0 10px 0; color: #000; font-weight: bold; text-rendering: optimizeLegibility;">Bill To:</h3>
+                <div style="font-size: 14px; color: #333; line-height: 1.4; white-space: pre-line; text-rendering: optimizeLegibility;">${
                   toDetails || "Client Name\nClient Address\nCity, State ZIP"
                 }</div>
               </div>
-              <div style="font-size: 14px; color: #666;">
+              <div style="font-size: 14px; color: #333; text-rendering: optimizeLegibility;">
                 <div style="margin-bottom: 5px;"><strong>Invoice #:</strong> ${invoiceNumber}</div>
                 <div style="margin-bottom: 5px;"><strong>Terms:</strong> ${terms}</div>
                 <div style="margin-bottom: 5px;"><strong>Issued:</strong> ${new Date(
@@ -162,10 +162,8 @@ export default function InvoiceMaker() {
             </div>
             <div style="text-align: center; flex: 1;">
               <div style="margin-top: 60px;">
-                <div style="font-size: 18px; margin-bottom: 5px; color: #333;">Invoice Total:</div>
-                <div style="font-size: 32px; font-weight: bold; color: #333;">$${total.toFixed(
-                  2
-                )}</div>
+                <div style="font-size: 18px; margin-bottom: 5px; color: #000; text-rendering: optimizeLegibility;">Invoice Total:</div>
+                <div style="font-size: 32px; font-weight: bold; color: #000; text-rendering: optimizeLegibility;">$${total.toFixed(2)}</div>
               </div>
             </div>
           </div>
@@ -174,11 +172,11 @@ export default function InvoiceMaker() {
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
             <thead>
               <tr style="background: #333; color: white;">
-                <th style="padding: 10px; text-align: left; font-weight: bold; font-size: 14px;">Item Description</th>
-                <th style="padding: 10px; text-align: right; font-weight: bold; font-size: 14px;">Price</th>
-                <th style="padding: 10px; text-align: center; font-weight: bold; font-size: 14px;">Quantity</th>
-                <th style="padding: 10px; text-align: right; font-weight: bold; font-size: 14px;">Tax</th>
-                <th style="padding: 10px; text-align: right; font-weight: bold; font-size: 14px;">Total</th>
+                <th style="padding: 10px; text-align: left; font-weight: bold; font-size: 14px; text-rendering: optimizeLegibility;">Item Description</th>
+                <th style="padding: 10px; text-align: right; font-weight: bold; font-size: 14px; text-rendering: optimizeLegibility;">Price</th>
+                <th style="padding: 10px; text-align: center; font-weight: bold; font-size: 14px; text-rendering: optimizeLegibility;">Quantity</th>
+                <th style="padding: 10px; text-align: right; font-weight: bold; font-size: 14px; text-rendering: optimizeLegibility;">Tax</th>
+                <th style="padding: 10px; text-align: right; font-weight: bold; font-size: 14px; text-rendering: optimizeLegibility;">Total</th>
               </tr>
             </thead>
             <tbody>
@@ -187,19 +185,19 @@ export default function InvoiceMaker() {
                   const itemTax = item.amount * (taxRate / 100);
                   return `
                   <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 10px; font-size: 14px;">${
+                    <td style="padding: 10px; font-size: 14px; color: #000; text-rendering: optimizeLegibility;">${
                       item.name || "No name"
                     }</td>
-                    <td style="padding: 10px; text-align: right; font-size: 14px;">$${item.price.toFixed(
+                    <td style="padding: 10px; text-align: right; font-size: 14px; color: #000; text-rendering: optimizeLegibility;">$${item.price.toFixed(
                       2
                     )}</td>
-                    <td style="padding: 10px; text-align: center; font-size: 14px;">${
+                    <td style="padding: 10px; text-align: center; font-size: 14px; color: #000; text-rendering: optimizeLegibility;">${
                       item.quantity
                     }</td>
-                    <td style="padding: 10px; text-align: right; font-size: 14px;">$${itemTax.toFixed(
+                    <td style="padding: 10px; text-align: right; font-size: 14px; color: #000; text-rendering: optimizeLegibility;">$${itemTax.toFixed(
                       2
                     )}</td>
-                    <td style="padding: 10px; text-align: right; font-size: 14px; font-weight: bold;">$${item.amount.toFixed(
+                    <td style="padding: 10px; text-align: right; font-size: 14px; font-weight: bold; color: #000; text-rendering: optimizeLegibility;">$${item.amount.toFixed(
                       2
                     )}</td>
                   </tr>
@@ -216,28 +214,24 @@ export default function InvoiceMaker() {
                 extraNotes
                   ? `
                 <div>
-                  <h3 style="font-size: 18px; margin: 0 0 10px 0; color: #333;">Notes:</h3>
-                  <div style="font-size: 14px; color: #666; line-height: 1.4; white-space: pre-line;">${extraNotes}</div>
+                  <h3 style="font-size: 18px; margin: 0 0 10px 0; color: #000; font-weight: bold; text-rendering: optimizeLegibility;">Notes:</h3>
+                  <div style="font-size: 14px; color: #333; line-height: 1.4; white-space: pre-line; text-rendering: optimizeLegibility;">${extraNotes}</div>
                 </div>
               `
                   : ""
               }
             </div>
             <div style="flex: 1; text-align: right;">
-              <div style="font-size: 14px; margin-bottom: 10px;">
-                <span style="display: inline-block; width: 100px; text-align: left;">Subtotal:</span>
-                <span style="display: inline-block; width: 80px; text-align: right;">$${subtotal.toFixed(
-                  2
-                )}</span>
+              <div style="font-size: 14px; margin-bottom: 10px; text-rendering: optimizeLegibility;">
+                <span style="display: inline-block; width: 100px; text-align: left; color: #000;">Subtotal:</span>
+                <span style="display: inline-block; width: 80px; text-align: right; color: #000;">$${subtotal.toFixed(2)}</span>
               </div>
               ${
                 discount > 0
                   ? `
-                <div style="font-size: 14px; margin-bottom: 10px;">
-                  <span style="display: inline-block; width: 100px; text-align: left;">Discount:</span>
-                  <span style="display: inline-block; width: 80px; text-align: right;">$${discount.toFixed(
-                    2
-                  )}</span>
+                <div style="font-size: 14px; margin-bottom: 10px; text-rendering: optimizeLegibility;">
+                  <span style="display: inline-block; width: 100px; text-align: left; color: #000;">Discount:</span>
+                  <span style="display: inline-block; width: 80px; text-align: right; color: #000;">$${discount.toFixed(2)}</span>
                 </div>
               `
                   : ""
@@ -245,11 +239,9 @@ export default function InvoiceMaker() {
               ${
                 taxRate > 0
                   ? `
-                <div style="font-size: 14px; margin-bottom: 10px;">
-                  <span style="display: inline-block; width: 100px; text-align: left;">Tax:</span>
-                  <span style="display: inline-block; width: 80px; text-align: right;">$${taxAmount.toFixed(
-                    2
-                  )}</span>
+                <div style="font-size: 14px; margin-bottom: 10px; text-rendering: optimizeLegibility;">
+                  <span style="display: inline-block; width: 100px; text-align: left; color: #000;">Tax:</span>
+                  <span style="display: inline-block; width: 80px; text-align: right; color: #000;">$${taxAmount.toFixed(2)}</span>
                 </div>
               `
                   : ""
@@ -257,21 +249,17 @@ export default function InvoiceMaker() {
               ${
                 shipping > 0
                   ? `
-                <div style="font-size: 14px; margin-bottom: 10px;">
-                  <span style="display: inline-block; width: 100px; text-align: left;">Shipping:</span>
-                  <span style="display: inline-block; width: 80px; text-align: right;">$${shipping.toFixed(
-                    2
-                  )}</span>
+                <div style="font-size: 14px; margin-bottom: 10px; text-rendering: optimizeLegibility;">
+                  <span style="display: inline-block; width: 100px; text-align: left; color: #000;">Shipping:</span>
+                  <span style="display: inline-block; width: 80px; text-align: right; color: #000;">$${shipping.toFixed(2)}</span>
                 </div>
               `
                   : ""
               }
-              <div style="border-top: 2px solid #333; padding-top: 10px; margin-top: 10px;">
-                <div style="font-size: 18px; font-weight: bold;">
-                  <span style="display: inline-block; width: 100px; text-align: left;">Balance Due:</span>
-                  <span style="display: inline-block; width: 80px; text-align: right;">$${total.toFixed(
-                    2
-                  )}</span>
+              <div style="border-top: 2px solid #000; padding-top: 10px; margin-top: 10px;">
+                <div style="font-size: 18px; font-weight: bold; text-rendering: optimizeLegibility;">
+                  <span style="display: inline-block; width: 100px; text-align: left; color: #000;">Balance Due:</span>
+                  <span style="display: inline-block; width: 80px; text-align: right; color: #000;">$${total.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -287,22 +275,22 @@ export default function InvoiceMaker() {
 
       document.body.appendChild(invoiceDiv);
 
-      // Convert to canvas and then to PDF with ULTRA-optimized settings
+      // Convert to canvas and then to PDF with balanced quality settings
       const canvas = await html2canvas(invoiceDiv, {
-        scale: 1.2, // Further reduced for maximum speed
+        scale: 1.5, // Balanced resolution for quality and compatibility
         useCORS: true,
         allowTaint: true,
         backgroundColor: "#ffffff",
         logging: false,
         removeContainer: true,
-        imageTimeout: 3000, // Even faster timeout
-        foreignObjectRendering: false, // Disable for speed
+        imageTimeout: 5000, // Balanced timeout
+        foreignObjectRendering: false, // Disable for compatibility
         ignoreElements: (element) => {
-          // Skip non-essential elements for faster rendering
+          // Skip non-essential elements
           return element.tagName === "SCRIPT" || element.tagName === "STYLE";
         },
         onclone: (clonedDoc) => {
-          // Aggressive DOM optimization
+          // Basic DOM optimization
           const allElements = clonedDoc.querySelectorAll("*");
           allElements.forEach((el) => {
             if (el instanceof HTMLElement) {
@@ -317,7 +305,12 @@ export default function InvoiceMaker() {
 
       document.body.removeChild(invoiceDiv);
 
-      const imgData = canvas.toDataURL("image/jpeg", 0.7); // Use JPEG with 70% quality for maximum speed
+      // Debug canvas
+      console.log("Canvas dimensions:", canvas.width, "x", canvas.height);
+      console.log("Canvas has content:", canvas.width > 0 && canvas.height > 0);
+
+      const imgData = canvas.toDataURL("image/jpeg", 0.9); // Use JPEG with high quality for reliability
+      console.log("Image data length:", imgData.length);
       const pdf = new jsPDF("p", "mm", "a4"); // Keep A4 but optimize processing
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
@@ -434,11 +427,11 @@ export default function InvoiceMaker() {
           <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
             <thead>
               <tr style="background: #333; color: white;">
-                <th style="padding: 10px; text-align: left; font-weight: bold; font-size: 14px;">Item Description</th>
-                <th style="padding: 10px; text-align: right; font-weight: bold; font-size: 14px;">Price</th>
-                <th style="padding: 10px; text-align: center; font-weight: bold; font-size: 14px;">Quantity</th>
-                <th style="padding: 10px; text-align: right; font-weight: bold; font-size: 14px;">Tax</th>
-                <th style="padding: 10px; text-align: right; font-weight: bold; font-size: 14px;">Total</th>
+                <th style="padding: 10px; text-align: left; font-weight: bold; font-size: 14px; text-rendering: optimizeLegibility;">Item Description</th>
+                <th style="padding: 10px; text-align: right; font-weight: bold; font-size: 14px; text-rendering: optimizeLegibility;">Price</th>
+                <th style="padding: 10px; text-align: center; font-weight: bold; font-size: 14px; text-rendering: optimizeLegibility;">Quantity</th>
+                <th style="padding: 10px; text-align: right; font-weight: bold; font-size: 14px; text-rendering: optimizeLegibility;">Tax</th>
+                <th style="padding: 10px; text-align: right; font-weight: bold; font-size: 14px; text-rendering: optimizeLegibility;">Total</th>
               </tr>
             </thead>
             <tbody>
@@ -447,19 +440,19 @@ export default function InvoiceMaker() {
                   const itemTax = item.amount * (taxRate / 100);
                   return `
                   <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 10px; font-size: 14px;">${
+                    <td style="padding: 10px; font-size: 14px; color: #000; text-rendering: optimizeLegibility;">${
                       item.name || "No name"
                     }</td>
-                    <td style="padding: 10px; text-align: right; font-size: 14px;">$${item.price.toFixed(
+                    <td style="padding: 10px; text-align: right; font-size: 14px; color: #000; text-rendering: optimizeLegibility;">$${item.price.toFixed(
                       2
                     )}</td>
-                    <td style="padding: 10px; text-align: center; font-size: 14px;">${
+                    <td style="padding: 10px; text-align: center; font-size: 14px; color: #000; text-rendering: optimizeLegibility;">${
                       item.quantity
                     }</td>
-                    <td style="padding: 10px; text-align: right; font-size: 14px;">$${itemTax.toFixed(
+                    <td style="padding: 10px; text-align: right; font-size: 14px; color: #000; text-rendering: optimizeLegibility;">$${itemTax.toFixed(
                       2
                     )}</td>
-                    <td style="padding: 10px; text-align: right; font-size: 14px; font-weight: bold;">$${item.amount.toFixed(
+                    <td style="padding: 10px; text-align: right; font-size: 14px; font-weight: bold; color: #000; text-rendering: optimizeLegibility;">$${item.amount.toFixed(
                       2
                     )}</td>
                   </tr>
@@ -476,28 +469,24 @@ export default function InvoiceMaker() {
                 extraNotes
                   ? `
                 <div>
-                  <h3 style="font-size: 18px; margin: 0 0 10px 0; color: #333;">Notes:</h3>
-                  <div style="font-size: 14px; color: #666; line-height: 1.4; white-space: pre-line;">${extraNotes}</div>
+                  <h3 style="font-size: 18px; margin: 0 0 10px 0; color: #000; font-weight: bold; text-rendering: optimizeLegibility;">Notes:</h3>
+                  <div style="font-size: 14px; color: #333; line-height: 1.4; white-space: pre-line; text-rendering: optimizeLegibility;">${extraNotes}</div>
                 </div>
               `
                   : ""
               }
             </div>
             <div style="flex: 1; text-align: right;">
-              <div style="font-size: 14px; margin-bottom: 10px;">
-                <span style="display: inline-block; width: 100px; text-align: left;">Subtotal:</span>
-                <span style="display: inline-block; width: 80px; text-align: right;">$${subtotal.toFixed(
-                  2
-                )}</span>
+              <div style="font-size: 14px; margin-bottom: 10px; text-rendering: optimizeLegibility;">
+                <span style="display: inline-block; width: 100px; text-align: left; color: #000;">Subtotal:</span>
+                <span style="display: inline-block; width: 80px; text-align: right; color: #000;">$${subtotal.toFixed(2)}</span>
               </div>
               ${
                 discount > 0
                   ? `
-                <div style="font-size: 14px; margin-bottom: 10px;">
-                  <span style="display: inline-block; width: 100px; text-align: left;">Discount:</span>
-                  <span style="display: inline-block; width: 80px; text-align: right;">$${discount.toFixed(
-                    2
-                  )}</span>
+                <div style="font-size: 14px; margin-bottom: 10px; text-rendering: optimizeLegibility;">
+                  <span style="display: inline-block; width: 100px; text-align: left; color: #000;">Discount:</span>
+                  <span style="display: inline-block; width: 80px; text-align: right; color: #000;">$${discount.toFixed(2)}</span>
                 </div>
               `
                   : ""
@@ -505,11 +494,9 @@ export default function InvoiceMaker() {
               ${
                 taxRate > 0
                   ? `
-                <div style="font-size: 14px; margin-bottom: 10px;">
-                  <span style="display: inline-block; width: 100px; text-align: left;">Tax:</span>
-                  <span style="display: inline-block; width: 80px; text-align: right;">$${taxAmount.toFixed(
-                    2
-                  )}</span>
+                <div style="font-size: 14px; margin-bottom: 10px; text-rendering: optimizeLegibility;">
+                  <span style="display: inline-block; width: 100px; text-align: left; color: #000;">Tax:</span>
+                  <span style="display: inline-block; width: 80px; text-align: right; color: #000;">$${taxAmount.toFixed(2)}</span>
                 </div>
               `
                   : ""
@@ -517,21 +504,17 @@ export default function InvoiceMaker() {
               ${
                 shipping > 0
                   ? `
-                <div style="font-size: 14px; margin-bottom: 10px;">
-                  <span style="display: inline-block; width: 100px; text-align: left;">Shipping:</span>
-                  <span style="display: inline-block; width: 80px; text-align: right;">$${shipping.toFixed(
-                    2
-                  )}</span>
+                <div style="font-size: 14px; margin-bottom: 10px; text-rendering: optimizeLegibility;">
+                  <span style="display: inline-block; width: 100px; text-align: left; color: #000;">Shipping:</span>
+                  <span style="display: inline-block; width: 80px; text-align: right; color: #000;">$${shipping.toFixed(2)}</span>
                 </div>
               `
                   : ""
               }
-              <div style="border-top: 2px solid #333; padding-top: 10px; margin-top: 10px;">
-                <div style="font-size: 18px; font-weight: bold;">
-                  <span style="display: inline-block; width: 100px; text-align: left;">Balance Due:</span>
-                  <span style="display: inline-block; width: 80px; text-align: right;">$${total.toFixed(
-                    2
-                  )}</span>
+              <div style="border-top: 2px solid #000; padding-top: 10px; margin-top: 10px;">
+                <div style="font-size: 18px; font-weight: bold; text-rendering: optimizeLegibility;">
+                  <span style="display: inline-block; width: 100px; text-align: left; color: #000;">Balance Due:</span>
+                  <span style="display: inline-block; width: 80px; text-align: right; color: #000;">$${total.toFixed(2)}</span>
                 </div>
               </div>
             </div>
@@ -546,22 +529,22 @@ export default function InvoiceMaker() {
 
       document.body.appendChild(invoiceDiv);
 
-      // Convert to canvas and then to PDF with ULTRA-optimized settings
+      // Convert to canvas and then to PDF with balanced quality settings
       const canvas = await html2canvas(invoiceDiv, {
-        scale: 1.2, // Further reduced for maximum speed
+        scale: 1.5, // Balanced resolution for quality and compatibility
         useCORS: true,
         allowTaint: true,
         backgroundColor: "#ffffff",
         logging: false,
         removeContainer: true,
-        imageTimeout: 3000, // Even faster timeout
-        foreignObjectRendering: false, // Disable for speed
+        imageTimeout: 5000, // Balanced timeout
+        foreignObjectRendering: false, // Disable for compatibility
         ignoreElements: (element) => {
-          // Skip non-essential elements for faster rendering
+          // Skip non-essential elements
           return element.tagName === "SCRIPT" || element.tagName === "STYLE";
         },
         onclone: (clonedDoc) => {
-          // Aggressive DOM optimization
+          // Basic DOM optimization
           const allElements = clonedDoc.querySelectorAll("*");
           allElements.forEach((el) => {
             if (el instanceof HTMLElement) {
@@ -576,7 +559,12 @@ export default function InvoiceMaker() {
 
       document.body.removeChild(invoiceDiv);
 
-      const imgData = canvas.toDataURL("image/jpeg", 0.7); // Use JPEG with 70% quality for maximum speed
+      // Debug canvas
+      console.log("Canvas dimensions:", canvas.width, "x", canvas.height);
+      console.log("Canvas has content:", canvas.width > 0 && canvas.height > 0);
+
+      const imgData = canvas.toDataURL("image/jpeg", 0.9); // Use JPEG with high quality for reliability
+      console.log("Image data length:", imgData.length);
       const pdf = new jsPDF("p", "mm", "a4"); // Keep A4 but optimize processing
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
