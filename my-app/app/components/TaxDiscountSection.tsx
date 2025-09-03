@@ -115,19 +115,7 @@ export default function TaxDiscountSection({
         </div>
       </div>
 
-      {/* Progress indicator */}
-      <div className="mt-4">
-        <div className="flex justify-between text-xs text-white/60 mb-2">
-          <span>Invoice Progress</span>
-          <span>{Math.round((subtotal / 1000) * 100)}%</span>
-        </div>
-        <div className="w-full bg-white/10 rounded-full h-2">
-          <div 
-            className="bg-gradient-to-r from-purple-500 to-blue-500 h-2 rounded-full transition-all duration-500"
-            style={{ width: `${Math.min((subtotal / 1000) * 100, 100)}%` }}
-          />
-        </div>
-      </div>
+
     </div>
   );
 }
