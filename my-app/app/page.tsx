@@ -343,7 +343,220 @@ export default function InvoiceMaker() {
     setIsEmailSending(true);
 
     try {
-      // Send email without PDF attachment first (faster)
+      // Generate PDF first
+      const invoiceDiv = document.createElement("div");
+      invoiceDiv.style.position = "absolute";
+      invoiceDiv.style.left = "-9999px";
+      invoiceDiv.style.top = "0";
+      invoiceDiv.style.width = "800px";
+      invoiceDiv.style.backgroundColor = "white";
+      invoiceDiv.style.padding = "20px";
+      invoiceDiv.style.fontFamily = "Arial, sans-serif";
+      invoiceDiv.style.color = "#333";
+
+      invoiceDiv.innerHTML = `
+        <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: white; color: #333;">
+          <!-- Header Section -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
+            <div style="flex: 1;">
+              <div style="font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #333;">${
+                fromDetails.split("\n")[0] || "Company Name"
+              }</div>
+              <div style="font-size: 14px; color: #666; line-height: 1.4; white-space: pre-line;">${
+                fromDetails ||
+                "Company Address\nCity, State ZIP\nPhone: (555) 123-4567"
+              }</div>
+            </div>
+            <div style="text-align: center; flex: 1;">
+              <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; margin-right: 20px;">
+                <div style="font-size: 36px; font-weight: bold; color: #333;">${invoiceType}</div>
+                ${
+                  logo
+                    ? `<img src="${logo}" style="max-width: 150px; max-height: 150px; margin-top: 20px; border-radius: 50%; object-fit: cover;" />`
+                    : ""
+                }
+              </div>
+            </div>
+          </div>
+
+          <!-- Invoice Details and Total -->
+          <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <div style="flex: 1;">
+              <div style="margin-bottom: 20px;">
+                <h3 style="font-size: 18px; margin: 0 0 10px 0; color: #333;">Bill To:</h3>
+                <div style="font-size: 14px; color: #666; line-height: 1.4; white-space: pre-line;">${
+                  toDetails || "Client Name\nClient Address\nCity, State ZIP"
+                }</div>
+              </div>
+              <div style="font-size: 14px; color: #666;">
+                <div style="margin-bottom: 5px;"><strong>Invoice #:</strong> ${invoiceNumber}</div>
+                <div style="margin-bottom: 5px;"><strong>Terms:</strong> Due On Receipt</div>
+                <div style="margin-bottom: 5px;"><strong>Issued:</strong> ${new Date(
+                  invoiceDate
+                ).toLocaleDateString()}</div>
+                <div style="margin-bottom: 5px;"><strong>Due:</strong> ${new Date(
+                  invoiceDate
+                ).toLocaleDateString()}</div>
+              </div>
+            </div>
+            <div style="text-align: center; flex: 1;">
+              <div style="margin-top: 60px;">
+                <div style="font-size: 18px; margin-bottom: 5px; color: #333;">Invoice Total:</div>
+                <div style="font-size: 32px; font-weight: bold; color: #333;">$${total.toFixed(2)}</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Items Table -->
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+            <thead>
+              <tr style="background: #333; color: white;">
+                <th style="padding: 10px; text-align: left; font-weight: bold; font-size: 14px;">Item Description</th>
+                <th style="padding: 10px; text-align: right; font-weight: bold; font-size: 14px;">Price</th>
+                <th style="padding: 10px; text-align: center; font-weight: bold; font-size: 14px;">Quantity</th>
+                <th style="padding: 10px; text-align: right; font-weight: bold; font-size: 14px;">Tax</th>
+                <th style="padding: 10px; text-align: right; font-weight: bold; font-size: 14px;">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${items
+                .map((item) => {
+                  const itemTax = item.amount * (taxRate / 100);
+                  return `
+                  <tr style="border-bottom: 1px solid #eee;">
+                    <td style="padding: 10px; font-size: 14px;">${
+                      item.name || "No name"
+                    }</td>
+                    <td style="padding: 10px; text-align: right; font-size: 14px;">$${item.price.toFixed(
+                      2
+                    )}</td>
+                    <td style="padding: 10px; text-align: center; font-size: 14px;">${
+                      item.quantity
+                    }</td>
+                    <td style="padding: 10px; text-align: right; font-size: 14px;">$${itemTax.toFixed(
+                      2
+                    )}</td>
+                    <td style="padding: 10px; text-align: right; font-size: 14px; font-weight: bold;">$${item.amount.toFixed(
+                      2
+                    )}</td>
+                  </tr>
+                `;
+                })
+                .join("")}
+            </tbody>
+          </table>
+
+          <!-- Notes and Summary -->
+          <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <div style="flex: 1; margin-right: 40px;">
+              ${
+                extraNotes
+                  ? `
+                <div>
+                  <h3 style="font-size: 18px; margin: 0 0 10px 0; color: #333;">Notes:</h3>
+                  <div style="font-size: 14px; color: #666; line-height: 1.4; white-space: pre-line;">${extraNotes}</div>
+                </div>
+              `
+                  : ""
+              }
+            </div>
+            <div style="flex: 1; text-align: right;">
+              <div style="font-size: 14px; margin-bottom: 10px;">
+                <span style="display: inline-block; width: 100px; text-align: left;">Subtotal:</span>
+                <span style="display: inline-block; width: 80px; text-align: right;">$${subtotal.toFixed(
+                  2
+                )}</span>
+              </div>
+              ${
+                discount > 0
+                  ? `
+                <div style="font-size: 14px; margin-bottom: 10px;">
+                  <span style="display: inline-block; width: 100px; text-align: left;">Discount:</span>
+                  <span style="display: inline-block; width: 80px; text-align: right;">$${discount.toFixed(
+                    2
+                  )}</span>
+                </div>
+              `
+                  : ""
+              }
+              ${
+                taxRate > 0
+                  ? `
+                <div style="font-size: 14px; margin-bottom: 10px;">
+                  <span style="display: inline-block; width: 100px; text-align: left;">Tax:</span>
+                  <span style="display: inline-block; width: 80px; text-align: right;">$${taxAmount.toFixed(
+                    2
+                  )}</span>
+                </div>
+              `
+                  : ""
+              }
+              ${
+                shipping > 0
+                  ? `
+                <div style="font-size: 14px; margin-bottom: 10px;">
+                  <span style="display: inline-block; width: 100px; text-align: left;">Shipping:</span>
+                  <span style="display: inline-block; width: 80px; text-align: right;">$${shipping.toFixed(
+                    2
+                  )}</span>
+                </div>
+              `
+                  : ""
+              }
+              <div style="border-top: 2px solid #333; padding-top: 10px; margin-top: 10px;">
+                <div style="font-size: 18px; font-weight: bold;">
+                  <span style="display: inline-block; width: 100px; text-align: left;">Balance Due:</span>
+                  <span style="display: inline-block; width: 80px; text-align: right;">$${total.toFixed(
+                    2
+                  )}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Footer -->
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 30px; padding-top: 10px; border-top: 1px solid #eee; font-size: 12px; color: #666;">
+            
+          </div>
+        </div>
+      `;
+
+      document.body.appendChild(invoiceDiv);
+
+      // Convert to canvas and then to PDF
+      const canvas = await html2canvas(invoiceDiv, {
+        scale: 2,
+        useCORS: true,
+        allowTaint: true,
+        backgroundColor: "#ffffff",
+      });
+
+      document.body.removeChild(invoiceDiv);
+
+      const imgData = canvas.toDataURL("image/png");
+      const pdf = new jsPDF("p", "mm", "a4");
+      const pdfWidth = pdf.internal.pageSize.getWidth();
+      const pdfHeight = pdf.internal.pageSize.getHeight();
+      const imgWidth = pdfWidth - 20;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      let heightLeft = imgHeight;
+      let position = 10;
+
+      pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+      heightLeft -= pdfHeight - 20;
+
+      while (heightLeft >= 0) {
+        position = heightLeft - imgHeight + 10;
+        pdf.addPage();
+        pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+        heightLeft -= pdfHeight - 20;
+      }
+
+      // Convert PDF to base64
+      const pdfBase64 = pdf.output('datauristring').split(',')[1];
+
+      // Send email with PDF attachment
       const response = await fetch("/api/send-email", {
         method: "POST",
         headers: {
@@ -363,14 +576,14 @@ export default function InvoiceMaker() {
           shipping,
           extraNotes,
           logo,
-          // No PDF attachment for faster sending
+          pdfAttachment: pdfBase64,
         }),
       });
 
       const result = await response.json();
 
       if (response.ok) {
-        alert("Invoice sent successfully via email!");
+        alert("Invoice sent successfully via email with PDF attachment!");
       } else {
         alert(`Error sending email: ${result.error}`);
       }

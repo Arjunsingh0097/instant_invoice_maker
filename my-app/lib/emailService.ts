@@ -55,6 +55,7 @@ export const generateInvoiceEmailHTML = (
 ): string => {
   const companyName = fromDetails.split('\n')[0] || 'Company Name';
   const clientName = toDetails.split('\n')[0] || 'Client Name';
+  const companyAddress = fromDetails.split('\n').slice(1).join('<br>') || 'Company Address';
 
   return `
     <!DOCTYPE html>
@@ -64,192 +65,231 @@ export const generateInvoiceEmailHTML = (
       <meta name="viewport" content="width=device-width, initial-scale=1.0">
       <title>${invoiceType} - ${invoiceNumber}</title>
       <style>
+        * {
+          margin: 0;
+          padding: 0;
+          box-sizing: border-box;
+        }
         body {
-          font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+          font-family: 'Arial', sans-serif;
           line-height: 1.6;
           color: #333;
+          background-color: #f5f5f5;
+          padding: 20px;
+        }
+        .email-wrapper {
           max-width: 600px;
           margin: 0 auto;
-          padding: 20px;
-          background-color: #f8f9fa;
-        }
-        .email-container {
-          background-color: white;
-          padding: 40px;
-          border-radius: 12px;
-          box-shadow: 0 4px 20px rgba(0,0,0,0.1);
-          border: 1px solid #e9ecef;
+          background-color: #ffffff;
+          border-radius: 8px;
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+          overflow: hidden;
         }
         .header {
+          background-color: #1e3a8a;
+          color: white;
+          padding: 30px;
           text-align: center;
-          border-bottom: 3px solid #007bff;
-          padding-bottom: 25px;
-          margin-bottom: 35px;
         }
         .header h1 {
-          color: #007bff;
-          margin: 0;
-          font-size: 32px;
-          font-weight: 600;
-          letter-spacing: -0.5px;
+          font-size: 28px;
+          font-weight: bold;
+          margin-bottom: 8px;
         }
-        .header p {
-          color: #6c757d;
-          font-size: 16px;
-          margin: 8px 0 0 0;
-          font-weight: 500;
+        .header .subtitle {
+          font-size: 14px;
+          opacity: 0.9;
+        }
+        .content {
+          padding: 30px;
         }
         .greeting {
-          font-size: 18px;
-          color: #495057;
-          margin-bottom: 25px;
-          font-weight: 500;
+          font-size: 16px;
+          color: #333;
+          margin-bottom: 20px;
+          font-weight: bold;
         }
         .main-content {
-          font-size: 16px;
-          color: #495057;
-          margin-bottom: 30px;
-          line-height: 1.7;
+          font-size: 14px;
+          color: #666;
+          margin-bottom: 25px;
+          line-height: 1.6;
         }
-        .invoice-details {
-          background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-          padding: 25px;
-          border-radius: 8px;
+        .main-content p {
+          margin-bottom: 15px;
+        }
+        .invoice-summary {
+          background-color: #ffffff;
+          border: 1px solid #e0e0e0;
+          border-left: 4px solid #1e3a8a;
+          padding: 20px;
           margin: 25px 0;
-          border-left: 4px solid #007bff;
+        }
+        .summary-title {
+          font-size: 16px;
+          font-weight: bold;
+          color: #333;
+          margin-bottom: 15px;
         }
         .detail-row {
           display: flex;
           justify-content: space-between;
-          margin-bottom: 12px;
+          align-items: center;
           padding: 8px 0;
-          border-bottom: 1px solid #dee2e6;
+          border-bottom: 1px solid #f0f0f0;
         }
         .detail-row:last-child {
           border-bottom: none;
         }
         .detail-label {
-          font-weight: 600;
-          color: #495057;
-          font-size: 15px;
+          font-weight: bold;
+          color: #333;
+          font-size: 13px;
         }
         .detail-value {
-          color: #212529;
-          font-weight: 500;
-          font-size: 15px;
-        }
-        .total-section {
-          background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
-          color: white;
-          padding: 30px;
-          border-radius: 10px;
-          text-align: center;
-          margin: 30px 0;
-          box-shadow: 0 4px 15px rgba(0,123,255,0.3);
-        }
-        .total-label {
-          font-size: 18px;
-          font-weight: 500;
-          margin-bottom: 10px;
-          opacity: 0.9;
+          color: #333;
+          font-size: 13px;
         }
         .total-amount {
-          font-size: 36px;
-          font-weight: 700;
-          margin: 15px 0;
-          text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+          color: #22c55e;
+          font-weight: bold;
         }
-        .attachment-notice {
-          background-color: #e7f3ff;
-          border: 1px solid #b3d9ff;
-          border-radius: 8px;
-          padding: 20px;
-          margin: 25px 0;
-          text-align: center;
+        .additional-info {
+          background-color: #f8f9fa;
+          padding: 15px;
+          margin: 20px 0;
+          border-radius: 4px;
         }
-        .attachment-notice p {
+        .additional-info h3 {
+          font-size: 14px;
+          font-weight: bold;
+          color: #333;
+          margin-bottom: 8px;
+        }
+        .additional-info p {
+          font-size: 13px;
+          color: #666;
           margin: 0;
-          color: #0066cc;
-          font-weight: 500;
+        }
+        .payment-section {
+          background-color: #1e3a8a;
+          color: white;
+          padding: 20px;
+          text-align: center;
+          margin: 25px 0;
+        }
+        .payment-section h3 {
           font-size: 16px;
+          font-weight: bold;
+          margin-bottom: 10px;
+        }
+        .payment-section p {
+          font-size: 13px;
+          margin: 0;
+          opacity: 0.9;
+        }
+        .closing-content {
+          font-size: 14px;
+          color: #666;
+          margin: 25px 0;
+          line-height: 1.6;
+        }
+        .closing-content p {
+          margin-bottom: 15px;
         }
         .footer {
-          text-align: center;
-          margin-top: 40px;
-          padding-top: 25px;
-          border-top: 2px solid #e9ecef;
-          color: #6c757d;
-          font-size: 15px;
+          background-color: #ffffff;
+          padding: 25px 30px;
+          border-top: 1px solid #e0e0e0;
         }
         .signature {
-          font-weight: 600;
-          color: #495057;
-          margin: 15px 0;
+          font-size: 14px;
+          color: #333;
+          margin-bottom: 15px;
         }
-        .disclaimer {
+        .company-name {
+          font-weight: bold;
+          margin-bottom: 5px;
+        }
+        .company-address {
           font-size: 13px;
-          color: #868e96;
-          margin-top: 20px;
-          font-style: italic;
+          color: #666;
+          line-height: 1.4;
+        }
+        @media (max-width: 600px) {
+          .email-wrapper {
+            margin: 0;
+            border-radius: 0;
+          }
+          .header, .content, .footer {
+            padding: 20px;
+          }
+          .header h1 {
+            font-size: 24px;
+          }
         }
       </style>
     </head>
     <body>
-      <div class="email-container">
+      <div class="email-wrapper">
         <div class="header">
-          <h1>${invoiceType}</h1>
-          <p>Document #${invoiceNumber}</p>
+          <h1>${invoiceType} #${invoiceNumber}</h1>
+          <div class="subtitle">Professional Business Document</div>
         </div>
         
-        <div class="greeting">Dear ${clientName},</div>
-        
-        <div class="main-content">
-          <p>We hope this message finds you well. We are pleased to present your ${invoiceType.toLowerCase()} for the services provided.</p>
+        <div class="content">
+          <div class="greeting">Dear ${clientName},</div>
           
-          <p>Please find below a summary of your ${invoiceType.toLowerCase()}. For a detailed PDF document, please contact us and we will provide it promptly.</p>
-        </div>
-        
-        <div class="invoice-details">
-          <div class="detail-row">
-            <span class="detail-label">Service Provider:</span>
-            <span class="detail-value">${companyName}</span>
+          <div class="main-content">
+            <p>We hope this message finds you well. Please find attached your ${invoiceType} #${invoiceNumber} for the services provided. We appreciate your business and look forward to continuing our professional relationship.</p>
           </div>
-          <div class="detail-row">
-            <span class="detail-label">Document Date:</span>
-            <span class="detail-value">${new Date(invoiceDate).toLocaleDateString('en-US', { 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}</span>
-          </div>
-          <div class="detail-row">
-            <span class="detail-label">Reference Number:</span>
-            <span class="detail-value">${invoiceNumber}</span>
-          </div>
-        </div>
-        
-        <div class="total-section">
-          <div class="total-label">Total Amount Due</div>
-          <div class="total-amount">$${total.toFixed(2)}</div>
-        </div>
-        
-        <div class="attachment-notice">
-          <p>📄 For a detailed PDF version of this ${invoiceType.toLowerCase()}, please contact us</p>
-        </div>
-        
-        <div class="main-content">
-          <p>Should you have any questions regarding this ${invoiceType.toLowerCase()} or require clarification on any items, please do not hesitate to contact us. We are committed to providing excellent service and ensuring your complete satisfaction.</p>
           
-          <p>We appreciate your business and look forward to continuing our professional relationship.</p>
+          <div class="invoice-summary">
+            <div class="summary-title">Invoice Summary</div>
+            <div class="detail-row">
+              <span class="detail-label">INVOICE NUMBER:</span>
+              <span class="detail-value">${invoiceNumber}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">ISSUE DATE:</span>
+              <span class="detail-value">${new Date(invoiceDate).toLocaleDateString('en-US', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+              })}</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">PAYMENT TERMS:</span>
+              <span class="detail-value">Net 15</span>
+            </div>
+            <div class="detail-row">
+              <span class="detail-label">TOTAL AMOUNT:</span>
+              <span class="detail-value total-amount">$${total.toFixed(2)}</span>
+            </div>
+          </div>
+          
+          <div class="additional-info">
+            <h3>Additional Information</h3>
+            <p>Please review the attached PDF for complete payment details and remittance instructions.</p>
+          </div>
+          
+          <div class="payment-section">
+            <h3>Payment Information</h3>
+            <p>Please review the attached PDF for complete payment details and remittance instructions.</p>
+          </div>
+          
+          <div class="closing-content">
+            <p>Should you have any questions regarding this ${invoiceType.toLowerCase()} or require any clarification, please do not hesitate to contact us. We are committed to providing exceptional service and ensuring your complete satisfaction.</p>
+            
+            <p>Thank you for your continued trust in our services. We look forward to serving you again in the future.</p>
+          </div>
         </div>
         
         <div class="footer">
           <div class="signature">
             Best regards,<br>
-            <strong>${companyName}</strong>
-          </div>
-          <div class="disclaimer">
-            This is an automated message. Please do not reply directly to this email address.
+            <div class="company-name">${companyName}</div>
+            <div class="company-address">${companyAddress}</div>
           </div>
         </div>
       </div>
