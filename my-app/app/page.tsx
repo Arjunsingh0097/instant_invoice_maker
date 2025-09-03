@@ -111,14 +111,14 @@ export default function InvoiceMaker() {
       invoiceDiv.style.top = "0";
       invoiceDiv.style.width = "800px";
       invoiceDiv.style.backgroundColor = "white";
-      invoiceDiv.style.padding = "40px";
+      invoiceDiv.style.padding = "20px";
       invoiceDiv.style.fontFamily = "Arial, sans-serif";
       invoiceDiv.style.color = "#333";
 
       invoiceDiv.innerHTML = `
-        <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 40px; background: white; color: #333;">
+        <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: white; color: #333;">
           <!-- Header Section -->
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px;">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
             <div style="flex: 1;">
               <div style="font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #333;">${
                 fromDetails.split("\n")[0] || "Company Name"
@@ -141,7 +141,7 @@ export default function InvoiceMaker() {
           </div>
 
           <!-- Invoice Details and Total -->
-          <div style="display: flex; justify-content: space-between; margin-bottom: 40px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
             <div style="flex: 1;">
               <div style="margin-bottom: 20px;">
                 <h3 style="font-size: 18px; margin: 0 0 10px 0; color: #333;">Bill To:</h3>
@@ -169,14 +169,14 @@ export default function InvoiceMaker() {
           </div>
 
           <!-- Items Table -->
-          <table style="width: 100%; border-collapse: collapse; margin-bottom: 30px;">
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
             <thead>
               <tr style="background: #333; color: white;">
-                <th style="padding: 15px; text-align: left; font-weight: bold; font-size: 14px;">Item Description</th>
-                <th style="padding: 15px; text-align: right; font-weight: bold; font-size: 14px;">Price</th>
-                <th style="padding: 15px; text-align: center; font-weight: bold; font-size: 14px;">Quantity</th>
-                <th style="padding: 15px; text-align: right; font-weight: bold; font-size: 14px;">Tax</th>
-                <th style="padding: 15px; text-align: right; font-weight: bold; font-size: 14px;">Total</th>
+                <th style="padding: 10px; text-align: left; font-weight: bold; font-size: 14px;">Item Description</th>
+                <th style="padding: 10px; text-align: right; font-weight: bold; font-size: 14px;">Price</th>
+                <th style="padding: 10px; text-align: center; font-weight: bold; font-size: 14px;">Quantity</th>
+                <th style="padding: 10px; text-align: right; font-weight: bold; font-size: 14px;">Tax</th>
+                <th style="padding: 10px; text-align: right; font-weight: bold; font-size: 14px;">Total</th>
               </tr>
             </thead>
             <tbody>
@@ -185,19 +185,19 @@ export default function InvoiceMaker() {
                   const itemTax = item.amount * (taxRate / 100);
                   return `
                   <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 15px; font-size: 14px;">${
+                    <td style="padding: 10px; font-size: 14px;">${
                       item.name || "No name"
                     }</td>
-                    <td style="padding: 15px; text-align: right; font-size: 14px;">$${item.price.toFixed(
+                    <td style="padding: 10px; text-align: right; font-size: 14px;">$${item.price.toFixed(
                       2
                     )}</td>
-                    <td style="padding: 15px; text-align: center; font-size: 14px;">${
+                    <td style="padding: 10px; text-align: center; font-size: 14px;">${
                       item.quantity
                     }</td>
-                    <td style="padding: 15px; text-align: right; font-size: 14px;">$${itemTax.toFixed(
+                    <td style="padding: 10px; text-align: right; font-size: 14px;">$${itemTax.toFixed(
                       2
                     )}</td>
-                    <td style="padding: 15px; text-align: right; font-size: 14px; font-weight: bold;">$${item.amount.toFixed(
+                    <td style="padding: 10px; text-align: right; font-size: 14px; font-weight: bold;">$${item.amount.toFixed(
                       2
                     )}</td>
                   </tr>
@@ -208,7 +208,7 @@ export default function InvoiceMaker() {
           </table>
 
           <!-- Notes and Summary -->
-          <div style="display: flex; justify-content: space-between; margin-bottom: 40px;">
+          <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
             <div style="flex: 1; margin-right: 40px;">
               ${
                 extraNotes
@@ -276,7 +276,7 @@ export default function InvoiceMaker() {
           </div>
 
           <!-- Footer -->
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 60px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #666;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 30px; padding-top: 10px; border-top: 1px solid #eee; font-size: 12px; color: #666;">
             
            
           </div>
