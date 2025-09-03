@@ -121,11 +121,11 @@ export default function InvoiceMaker() {
           <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
             <div style="flex: 1;">
               <div style="font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #000; text-rendering: optimizeLegibility;">${
-                fromDetails.split("\n")[0] || "Company Name"
+                fromDetails.split("\n")[0] || "ABC Logistics Pty Ltd"
               }</div>
               <div style="font-size: 14px; color: #333; line-height: 1.4; white-space: pre-line; text-rendering: optimizeLegibility;">${
                 fromDetails ||
-                "Company Address\nCity, State ZIP\nPhone: (555) 123-4567"
+                "ABC Logistics Pty Ltd\n123 Example Street\nBrisbane QLD 4000\nPhone: (07) 3123 4567"
               }</div>
             </div>
             <div style="text-align: center; flex: 1;">
@@ -146,7 +146,7 @@ export default function InvoiceMaker() {
               <div style="margin-bottom: 20px;">
                 <h3 style="font-size: 18px; margin: 0 0 10px 0; color: #000; font-weight: bold; text-rendering: optimizeLegibility;">Bill To:</h3>
                 <div style="font-size: 14px; color: #333; line-height: 1.4; white-space: pre-line; text-rendering: optimizeLegibility;">${
-                  toDetails || "Client Name\nClient Address\nCity, State ZIP"
+                  toDetails || "John Smith\n45 Sample Avenue\nSydney NSW 2000\nPhone: (02) 9123 4567"
                 }</div>
               </div>
               <div style="font-size: 14px; color: #333; text-rendering: optimizeLegibility;">
@@ -381,16 +381,16 @@ export default function InvoiceMaker() {
                 "Company Address\nCity, State ZIP\nPhone: (555) 123-4567"
               }</div>
             </div>
-            <div style="text-align: center; flex: 1;">
-              <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; margin-right: 20px;">
-                <div style="font-size: 36px; font-weight: bold; color: #333;">${invoiceType}</div>
-                ${
-                  logo
-                    ? `<img src="${logo}" style="max-width: 150px; max-height: 150px; margin-top: 20px; border-radius: 50%; object-fit: cover;" />`
-                    : ""
-                }
+                          <div style="text-align: center; flex: 1;">
+                <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; margin-right: 20px;">
+                  <div style="font-size: 36px; font-weight: bold; color: #333;">${invoiceType}</div>
+                  ${
+                    logo
+                      ? `<img src="${logo}" style="max-width: 150px; max-height: 150px; margin-top: 20px; border-radius: 50%; object-fit: cover;" />`
+                      : ""
+                  }
+                </div>
               </div>
-            </div>
           </div>
 
           <!-- Invoice Details and Total -->
@@ -522,7 +522,7 @@ export default function InvoiceMaker() {
 
           <!-- Footer -->
           <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 30px; padding-top: 10px; border-top: 1px solid #eee; font-size: 12px; color: #666;">
-            
+           
           </div>
         </div>
       `;
@@ -887,7 +887,10 @@ export default function InvoiceMaker() {
                     <textarea
                       value={fromDetails}
                       onChange={(e) => setFromDetails(e.target.value)}
-                      placeholder="Enter your company details..."
+                      placeholder={`ABC Logistics Pty Ltd
+123 Example Street
+Brisbane QLD 4000
+Phone: (07) 3123 4567`}
                       className="w-full px-4 py-3 glass-input rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400/50 h-32 resize-none"
                     />
                   </div>
@@ -900,7 +903,10 @@ export default function InvoiceMaker() {
                     <textarea
                       value={toDetails}
                       onChange={(e) => setToDetails(e.target.value)}
-                      placeholder="Enter client details..."
+                      placeholder={`John Smith
+45 Sample Avenue
+Sydney NSW 2000
+Phone: (02) 9123 4567`}
                       className="w-full px-4 py-3 glass-input rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400/50 h-32 resize-none"
                     />
                   </div>
