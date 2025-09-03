@@ -113,9 +113,9 @@ export default function InvoiceMaker() {
       invoiceDiv.style.position = "absolute";
       invoiceDiv.style.left = "-9999px";
       invoiceDiv.style.top = "0";
-      invoiceDiv.style.width = "800px";
+      invoiceDiv.style.width = "600px"; // Reduced width for faster processing
       invoiceDiv.style.backgroundColor = "white";
-      invoiceDiv.style.padding = "20px";
+      invoiceDiv.style.padding = "15px"; // Reduced padding for faster processing
       invoiceDiv.style.fontFamily = "Arial, sans-serif";
       invoiceDiv.style.color = "#333";
 
@@ -167,7 +167,9 @@ export default function InvoiceMaker() {
             <div style="text-align: center; flex: 1;">
               <div style="margin-top: 60px;">
                 <div style="font-size: 18px; margin-bottom: 5px; color: #333;">Invoice Total:</div>
-                <div style="font-size: 32px; font-weight: bold; color: #333;">$${total.toFixed(2)}</div>
+                <div style="font-size: 32px; font-weight: bold; color: #333;">$${total.toFixed(
+                  2
+                )}</div>
               </div>
             </div>
           </div>
@@ -289,18 +291,38 @@ export default function InvoiceMaker() {
 
       document.body.appendChild(invoiceDiv);
 
-      // Convert to canvas and then to PDF
+      // Convert to canvas and then to PDF with ULTRA-optimized settings
       const canvas = await html2canvas(invoiceDiv, {
-        scale: 2,
+        scale: 1.2, // Further reduced for maximum speed
         useCORS: true,
         allowTaint: true,
         backgroundColor: "#ffffff",
+        logging: false,
+        removeContainer: true,
+        imageTimeout: 3000, // Even faster timeout
+        foreignObjectRendering: false, // Disable for speed
+        ignoreElements: (element) => {
+          // Skip non-essential elements for faster rendering
+          return element.tagName === "SCRIPT" || element.tagName === "STYLE";
+        },
+        onclone: (clonedDoc) => {
+          // Aggressive DOM optimization
+          const allElements = clonedDoc.querySelectorAll("*");
+          allElements.forEach((el) => {
+            if (el instanceof HTMLElement) {
+              el.style.transform = "none";
+              el.style.animation = "none";
+              el.style.transition = "none";
+              el.style.filter = "none";
+            }
+          });
+        },
       });
 
       document.body.removeChild(invoiceDiv);
 
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
+      const imgData = canvas.toDataURL("image/jpeg", 0.7); // Use JPEG with 70% quality for maximum speed
+      const pdf = new jsPDF("p", "mm", "a4"); // Keep A4 but optimize processing
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       const imgWidth = pdfWidth - 20;
@@ -309,13 +331,13 @@ export default function InvoiceMaker() {
       let heightLeft = imgHeight;
       let position = 10;
 
-      pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+      pdf.addImage(imgData, "JPEG", 10, position, imgWidth, imgHeight);
       heightLeft -= pdfHeight - 20;
 
       while (heightLeft >= 0) {
         position = heightLeft - imgHeight + 10;
         pdf.addPage();
-        pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+        pdf.addImage(imgData, "JPEG", 10, position, imgWidth, imgHeight);
         heightLeft -= pdfHeight - 20;
       }
 
@@ -343,14 +365,17 @@ export default function InvoiceMaker() {
     setIsEmailSending(true);
 
     try {
-      // Generate PDF first
+      // Show progress to user
+      console.log("🚀 Starting ultra-fast email generation...");
+
+      // Generate PDF first with optimized settings
       const invoiceDiv = document.createElement("div");
       invoiceDiv.style.position = "absolute";
       invoiceDiv.style.left = "-9999px";
       invoiceDiv.style.top = "0";
-      invoiceDiv.style.width = "800px";
+      invoiceDiv.style.width = "600px"; // Reduced width for faster processing
       invoiceDiv.style.backgroundColor = "white";
-      invoiceDiv.style.padding = "20px";
+      invoiceDiv.style.padding = "15px"; // Reduced padding for faster processing
       invoiceDiv.style.fontFamily = "Arial, sans-serif";
       invoiceDiv.style.color = "#333";
 
@@ -402,7 +427,9 @@ export default function InvoiceMaker() {
             <div style="text-align: center; flex: 1;">
               <div style="margin-top: 60px;">
                 <div style="font-size: 18px; margin-bottom: 5px; color: #333;">Invoice Total:</div>
-                <div style="font-size: 32px; font-weight: bold; color: #333;">$${total.toFixed(2)}</div>
+                <div style="font-size: 32px; font-weight: bold; color: #333;">$${total.toFixed(
+                  2
+                )}</div>
               </div>
             </div>
           </div>
@@ -523,18 +550,38 @@ export default function InvoiceMaker() {
 
       document.body.appendChild(invoiceDiv);
 
-      // Convert to canvas and then to PDF
+      // Convert to canvas and then to PDF with ULTRA-optimized settings
       const canvas = await html2canvas(invoiceDiv, {
-        scale: 2,
+        scale: 1.2, // Further reduced for maximum speed
         useCORS: true,
         allowTaint: true,
         backgroundColor: "#ffffff",
+        logging: false,
+        removeContainer: true,
+        imageTimeout: 3000, // Even faster timeout
+        foreignObjectRendering: false, // Disable for speed
+        ignoreElements: (element) => {
+          // Skip non-essential elements for faster rendering
+          return element.tagName === "SCRIPT" || element.tagName === "STYLE";
+        },
+        onclone: (clonedDoc) => {
+          // Aggressive DOM optimization
+          const allElements = clonedDoc.querySelectorAll("*");
+          allElements.forEach((el) => {
+            if (el instanceof HTMLElement) {
+              el.style.transform = "none";
+              el.style.animation = "none";
+              el.style.transition = "none";
+              el.style.filter = "none";
+            }
+          });
+        },
       });
 
       document.body.removeChild(invoiceDiv);
 
-      const imgData = canvas.toDataURL("image/png");
-      const pdf = new jsPDF("p", "mm", "a4");
+      const imgData = canvas.toDataURL("image/jpeg", 0.7); // Use JPEG with 70% quality for maximum speed
+      const pdf = new jsPDF("p", "mm", "a4"); // Keep A4 but optimize processing
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
       const imgWidth = pdfWidth - 20;
@@ -543,19 +590,21 @@ export default function InvoiceMaker() {
       let heightLeft = imgHeight;
       let position = 10;
 
-      pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+      pdf.addImage(imgData, "JPEG", 10, position, imgWidth, imgHeight);
       heightLeft -= pdfHeight - 20;
 
       while (heightLeft >= 0) {
         position = heightLeft - imgHeight + 10;
         pdf.addPage();
-        pdf.addImage(imgData, "PNG", 10, position, imgWidth, imgHeight);
+        pdf.addImage(imgData, "JPEG", 10, position, imgWidth, imgHeight);
         heightLeft -= pdfHeight - 20;
       }
 
       // Convert PDF to base64
-      const pdfBase64 = pdf.output('datauristring').split(',')[1];
+      console.log("⚡ Converting PDF to base64...");
+      const pdfBase64 = pdf.output("datauristring").split(",")[1];
 
+      console.log("📧 Sending email with lightning speed...");
       // Send email with PDF attachment
       const response = await fetch("/api/send-email", {
         method: "POST",
@@ -686,7 +735,9 @@ export default function InvoiceMaker() {
               <div class="invoice-total">
                 <div style="margin-top: 60px; text-align: center;">
                   <div style="font-size: 18px; margin-bottom: 5px; color: #333;">Invoice Total:</div>
-                  <div style="font-size: 32px; font-weight: bold; color: #333;">$${total.toFixed(2)}</div>
+                  <div style="font-size: 32px; font-weight: bold; color: #333;">$${total.toFixed(
+                    2
+                  )}</div>
                 </div>
               </div>
             </div>
@@ -1110,13 +1161,13 @@ export default function InvoiceMaker() {
               >
                 {isEmailSending ? (
                   <>
-                    <Loader2 className="h-5 w-5 animate-spin" />
-                    Sending Email...
+                    <Loader2 className="h-5 w-5 animate-spin" />⚡ Ultra-Fast
+                    Sending...
                   </>
                 ) : (
                   <>
                     <Mail className="h-5 w-5" />
-                    Send Invoice via Email
+                    Send Invoice
                   </>
                 )}
               </button>
