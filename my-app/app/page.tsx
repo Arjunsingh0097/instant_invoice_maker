@@ -7,15 +7,11 @@ import {
   Trash2,
   Download,
   Eye,
-  Save,
   FileText,
   User,
   Building,
   Sparkles,
   Zap,
-  Receipt,
-  Clock,
-  DollarSign,
   Mail,
   Loader2,
 } from "lucide-react";
@@ -1010,7 +1006,7 @@ export default function InvoiceMaker() {
 
               {/* Items Table */}
               <div className="space-y-4">
-                {items.map((item, index) => (
+                {items.map((item) => (
                   <div
                     key={item.id}
                     className="glass rounded-xl p-6 group hover:scale-[1.02] transition-all duration-300"

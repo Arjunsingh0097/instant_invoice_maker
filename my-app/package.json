@@ -9,6 +9,7 @@
     "lint": "eslint"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.57.0",
     "@types/nodemailer": "^7.0.1",
     "date-fns": "^4.1.0",
     "html2canvas": "^1.4.1",

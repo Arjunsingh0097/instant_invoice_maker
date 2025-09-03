@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useRef } from 'react';
-import { Image as ImageIcon, X, Upload, Crop, Check, RotateCcw } from 'lucide-react';
+import { X, Upload, Crop, Check, RotateCcw } from 'lucide-react';
 import ReactCrop, { Crop as CropType, PixelCrop } from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 

@@ -10,13 +10,11 @@ export async function POST(request: NextRequest) {
       invoiceType,
       fromDetails,
       toDetails,
-      total,
       invoiceDate,
       items,
       taxRate,
       discount,
       shipping,
-      extraNotes,
       pdfAttachment
     } = body;
 
@@ -29,7 +27,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Calculate totals
-    const subtotal = items.reduce((sum: number, item: any) => sum + item.amount, 0);
+    const subtotal = items.reduce((sum: number, item: { amount: number }) => sum + item.amount, 0);
     const taxAmount = (subtotal - discount) * (taxRate / 100);
     const finalTotal = subtotal - discount + taxAmount + shipping;
 
