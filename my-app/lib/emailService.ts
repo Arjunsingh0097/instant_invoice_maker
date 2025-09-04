@@ -1,11 +1,11 @@
 import nodemailer from 'nodemailer';
 
-// Email configuration
+// Email configuration using environment variables
 const emailConfig = {
   service: 'gmail',
   auth: {
-    user: 'arjunkondal00.7@gmail.com',
-    pass: 'dspq kmok dpep oerh' // Gmail app password
+    user: process.env.EMAIL_USER || 'arjunkondal00.7@gmail.com',
+    pass: process.env.EMAIL_PASS || 'dspq kmok dpep oerh' // Gmail app password
   }
 };
 
@@ -26,6 +26,14 @@ export interface EmailData {
 export const sendEmail = async (emailData: EmailData): Promise<boolean> => {
   try {
     console.log('Attempting to send email to:', emailData.to);
+    console.log('Using email user:', emailConfig.auth.user);
+    console.log('Email pass exists:', !!emailConfig.auth.pass);
+    
+    // Verify transporter configuration
+    if (!emailConfig.auth.user || !emailConfig.auth.pass) {
+      console.error('Email configuration missing: user or pass not set');
+      return false;
+    }
     
     const mailOptions = {
       from: `"InvoiceCraft" <${emailConfig.auth.user}>`,
@@ -35,12 +43,26 @@ export const sendEmail = async (emailData: EmailData): Promise<boolean> => {
       attachments: emailData.attachments || []
     };
 
-    // Skip connection verification for faster sending
+    console.log('Mail options prepared:', {
+      from: mailOptions.from,
+      to: mailOptions.to,
+      subject: mailOptions.subject,
+      attachmentsCount: mailOptions.attachments.length
+    });
+
+    // Verify connection before sending
+    await transporter.verify();
+    console.log('SMTP connection verified successfully');
+    
     const info = await transporter.sendMail(mailOptions);
     console.log('Email sent successfully:', info.messageId);
     return true;
   } catch (error) {
     console.error('Error sending email:', error);
+    if (error instanceof Error) {
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
+    }
     return false;
   }
 };
