@@ -15,13 +15,35 @@ export async function POST(request: NextRequest) {
       taxRate,
       discount,
       shipping,
+      extraNotes,
+      logo,
+      total,
       pdfAttachment
     } = body;
 
+    // Debug: Log received fields
+    console.log('Received fields:', {
+      to: !!to,
+      invoiceNumber: !!invoiceNumber,
+      invoiceType: !!invoiceType,
+      fromDetails: !!fromDetails,
+      toDetails: !!toDetails,
+      items: !!items,
+      itemsLength: items?.length
+    });
+
     // Validate required fields
-    if (!to || !invoiceNumber || !invoiceType || !fromDetails || !toDetails) {
+    if (!to || !invoiceNumber || !invoiceType || !fromDetails || !toDetails || !items) {
+      const missingFields = [];
+      if (!to) missingFields.push('to');
+      if (!invoiceNumber) missingFields.push('invoiceNumber');
+      if (!invoiceType) missingFields.push('invoiceType');
+      if (!fromDetails) missingFields.push('fromDetails');
+      if (!toDetails) missingFields.push('toDetails');
+      if (!items) missingFields.push('items');
+      
       return NextResponse.json(
-        { error: 'Missing required fields' },
+        { error: `Missing required fields: ${missingFields.join(', ')}` },
         { status: 400 }
       );
     }

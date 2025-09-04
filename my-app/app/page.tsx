@@ -14,6 +14,7 @@ import {
   Zap,
   Mail,
   Loader2,
+  X,
 } from "lucide-react";
 import { format } from "date-fns";
 import LogoUpload from "./components/LogoUpload";
@@ -45,13 +46,14 @@ export default function InvoiceMaker() {
   const [shipping, setShipping] = useState(0);
   const [clientEmail, setClientEmail] = useState("");
   const [isEmailSending, setIsEmailSending] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
   const [items, setItems] = useState<InvoiceItem[]>([
     {
       id: "1",
-      name: "",
-      price: 0,
+      name: "Sample Item",
+      price: 100,
       quantity: 1,
-      amount: 0,
+      amount: 100,
     },
   ]);
 
@@ -109,95 +111,89 @@ export default function InvoiceMaker() {
       invoiceDiv.style.position = "absolute";
       invoiceDiv.style.left = "-9999px";
       invoiceDiv.style.top = "0";
-      invoiceDiv.style.width = "600px"; // Reduced width for faster processing
+      // Force consistent PDF settings for all devices - desktop layout
+      invoiceDiv.style.width = "800px";
+      invoiceDiv.style.maxWidth = "800px";
+      invoiceDiv.style.minWidth = "800px";
       invoiceDiv.style.backgroundColor = "white";
-      invoiceDiv.style.padding = "15px"; // Reduced padding for faster processing
+      invoiceDiv.style.padding = "20px";
       invoiceDiv.style.fontFamily = "Arial, sans-serif";
       invoiceDiv.style.color = "#333";
+      invoiceDiv.style.fontSize = "16px";
+      invoiceDiv.style.lineHeight = "1.4";
+      // Force desktop layout
+      invoiceDiv.style.display = "block";
+      invoiceDiv.style.boxSizing = "border-box";
 
       invoiceDiv.innerHTML = `
-        <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: white; color: #333; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale;">
-          <!-- Header Section -->
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
-            <div style="flex: 1;">
-              <div style="font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #000; text-rendering: optimizeLegibility;">${
-                fromDetails.split("\n")[0] || "ABC Logistics Pty Ltd"
-              }</div>
-              <div style="font-size: 14px; color: #333; line-height: 1.4; white-space: pre-line; text-rendering: optimizeLegibility;">${
-                fromDetails ||
-                "ABC Logistics Pty Ltd\n123 Example Street\nBrisbane QLD 4000\nPhone: (07) 3123 4567"
-              }</div>
-            </div>
-            <div style="text-align: center; flex: 1;">
-              <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; margin-right: 20px;">
-                <div style="font-size: 36px; font-weight: bold; color: #000; text-rendering: optimizeLegibility;">${invoiceType}</div>
-                ${
-                  logo
-                    ? `<img src="${logo}" style="max-width: 150px; max-height: 150px; margin-top: 20px; border-radius: 50%; object-fit: cover; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />`
-                    : ""
-                }
+        <div style="font-family: Arial, sans-serif; width: 100%; max-width: 100%; margin: 0; padding: 10px; background: white; color: #333; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; box-sizing: border-box;">
+          <!-- Header Section - DRAFT INVOICE Layout -->
+          <div style="position: relative; margin-bottom: 30px;">
+            <!-- Top Row - Logo only -->
+            <div style="display: flex; justify-content: flex-end; align-items: flex-start; margin-bottom: 20px;">
+              <!-- Logo -->
+              <div>
+                  ${
+                    logo
+                     ? `<img src="${logo}" style="width: 100px; height: 100px; object-fit: contain; border-radius: 50%; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />`
+                      : ""
+                  }
               </div>
-            </div>
           </div>
 
-          <!-- Invoice Details and Total -->
-          <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+            <!-- Bottom Row - Company Details and Invoice Details -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <!-- Left Side - Company Details -->
             <div style="flex: 1;">
-              <div style="margin-bottom: 20px;">
-                <h3 style="font-size: 18px; margin: 0 0 10px 0; color: #000; font-weight: bold; text-rendering: optimizeLegibility;">Bill To:</h3>
-                <div style="font-size: 14px; color: #333; line-height: 1.4; white-space: pre-line; text-rendering: optimizeLegibility;">${
-                  toDetails || "John Smith\n45 Sample Avenue\nSydney NSW 2000\nPhone: (02) 9123 4567"
-                }</div>
+                <div style="font-size: 32px; font-weight: bold; margin-bottom: 8px; color: #000; letter-spacing: 1px; text-rendering: optimizeLegibility;">
+                  ${invoiceType.toUpperCase()} 
               </div>
-              <div style="font-size: 14px; color: #333; text-rendering: optimizeLegibility;">
-                <div style="margin-bottom: 5px;"><strong>Invoice #:</strong> ${invoiceNumber}</div>
-                <div style="margin-bottom: 5px;"><strong>Terms:</strong> ${terms}</div>
-                <div style="margin-bottom: 5px;"><strong>Issued:</strong> ${new Date(
-                  invoiceDate
-                ).toLocaleDateString()}</div>
-                <div style="margin-bottom: 5px;"><strong>Due:</strong> ${new Date(
-                  invoiceDate
-                ).toLocaleDateString()}</div>
+                <div style="font-size: 18px; font-weight: 500; color: #000; margin-bottom: 8px; text-rendering: optimizeLegibility;">
+                  ${fromDetails.split("\n")[0] || "Your Company Name"}
+              </div>
+                <div style="font-size: 12px; color: #333; line-height: 1.3; text-rendering: optimizeLegibility; white-space: pre-line;">
+                  ${fromDetails || "Your Company Name\nYour Company Address\nCity, State ZIP\nCountry"}
+            </div>
+              </div>
+              
+              <!-- Right Side - Invoice Details -->
+              <div style="text-align: right; flex: 1;">
+                <div style="text-align: left; margin-top: 10px;">
+                  <div style="font-size: 12px; margin-bottom: 4px; color: #666; text-rendering: optimizeLegibility;">Invoice Date</div>
+                  <div style="font-size: 14px; font-weight: 600; color: #000; margin-bottom: 20px; text-rendering: optimizeLegibility;">${new Date(invoiceDate).toLocaleDateString()}</div>
+                  <div style="font-size: 12px; margin-bottom: 4px; color: #666; text-rendering: optimizeLegibility;">Invoice Number</div>
+                  <div style="font-size: 14px; font-weight: 600; color: #000; text-rendering: optimizeLegibility;">${invoiceNumber}</div>
               </div>
             </div>
-            <div style="text-align: center; flex: 1;">
-              <div style="margin-top: 60px;">
-                <div style="font-size: 18px; margin-bottom: 5px; color: #000; text-rendering: optimizeLegibility;">Invoice Total:</div>
-                <div style="font-size: 32px; font-weight: bold; color: #000; text-rendering: optimizeLegibility;">$${total.toFixed(2)}</div>
-              </div>
             </div>
+            
           </div>
 
           <!-- Items Table -->
-          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; border: 1px solid #d1d5db; table-layout: fixed;">
             <thead>
-              <tr style="background: #333; color: white;">
-                <th style="padding: 10px; text-align: left; font-weight: bold; font-size: 14px; text-rendering: optimizeLegibility;">Item Description</th>
-                <th style="padding: 10px; text-align: right; font-weight: bold; font-size: 14px; text-rendering: optimizeLegibility;">Price</th>
-                <th style="padding: 10px; text-align: center; font-weight: bold; font-size: 14px; text-rendering: optimizeLegibility;">Quantity</th>
-                <th style="padding: 10px; text-align: right; font-weight: bold; font-size: 14px; text-rendering: optimizeLegibility;">Tax</th>
-                <th style="padding: 10px; text-align: right; font-weight: bold; font-size: 14px; text-rendering: optimizeLegibility;">Total</th>
+              <tr style="background: #f8f9fa; color: #000;">
+                <th style="padding: 8px; text-align: left; font-weight: bold; font-size: 16px; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; width: 50%;">Description</th>
+                <th style="padding: 8px; text-align: right; font-weight: bold; font-size: 16px; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; width: 20%;">Unit Price</th>
+                <th style="padding: 8px; text-align: center; font-weight: bold; font-size: 16px; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; width: 15%;">Quantity</th>
+                <th style="padding: 8px; text-align: right; font-weight: bold; font-size: 16px; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; width: 15%;">Amount USD</th>
               </tr>
             </thead>
             <tbody>
               ${items
                 .map((item) => {
-                  const itemTax = item.amount * (taxRate / 100);
                   return `
-                  <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 10px; font-size: 14px; color: #000; text-rendering: optimizeLegibility;">${
-                      item.name || "No name"
+                  <tr style="border-bottom: 1px solid #e5e7eb; background: white;">
+                    <td style="padding: 8px; font-size: 16px; color: #111827; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; vertical-align: top;">${
+                      item.name || ""
                     }</td>
-                    <td style="padding: 10px; text-align: right; font-size: 14px; color: #000; text-rendering: optimizeLegibility;">$${item.price.toFixed(
+                    <td style="padding: 8px; text-align: right; font-size: 16px; color: #111827; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; vertical-align: top;">$${item.price.toFixed(
                       2
                     )}</td>
-                    <td style="padding: 10px; text-align: center; font-size: 14px; color: #000; text-rendering: optimizeLegibility;">${
+                    <td style="padding: 8px; text-align: center; font-size: 16px; color: #111827; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; vertical-align: top;">${
                       item.quantity
                     }</td>
-                    <td style="padding: 10px; text-align: right; font-size: 14px; color: #000; text-rendering: optimizeLegibility;">$${itemTax.toFixed(
-                      2
-                    )}</td>
-                    <td style="padding: 10px; text-align: right; font-size: 14px; font-weight: bold; color: #000; text-rendering: optimizeLegibility;">$${item.amount.toFixed(
+                    <td style="padding: 8px; text-align: right; font-size: 16px; font-weight: bold; color: #111827; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; vertical-align: top;">$${item.amount.toFixed(
                       2
                     )}</td>
                   </tr>
@@ -207,61 +203,83 @@ export default function InvoiceMaker() {
             </tbody>
           </table>
 
-          <!-- Notes and Summary -->
-          <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-            <div style="flex: 1; margin-right: 40px;">
-              ${
-                extraNotes
-                  ? `
-                <div>
-                  <h3 style="font-size: 18px; margin: 0 0 10px 0; color: #000; font-weight: bold; text-rendering: optimizeLegibility;">Notes:</h3>
-                  <div style="font-size: 14px; color: #333; line-height: 1.4; white-space: pre-line; text-rendering: optimizeLegibility;">${extraNotes}</div>
+          <!-- Summary Section and Due Date -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px;">
+            <div style="text-align: left;">
+              <div style="font-size: 14px; color: #333; text-rendering: optimizeLegibility;">
+                Due Date: ${new Date(invoiceDate).toLocaleDateString()}
                 </div>
-              `
-                  : ""
-              }
             </div>
-            <div style="flex: 1; text-align: right;">
-              <div style="font-size: 14px; margin-bottom: 10px; text-rendering: optimizeLegibility;">
-                <span style="display: inline-block; width: 100px; text-align: left; color: #000;">Subtotal:</span>
-                <span style="display: inline-block; width: 80px; text-align: right; color: #000;">$${subtotal.toFixed(2)}</span>
+            <div style="text-align: right; min-width: 200px;">
+              <div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; text-rendering: optimizeLegibility;">
+                <span style="color: #111827; font-weight: 600;">Subtotal</span>
+                <span style="color: #111827; font-weight: bold;">$${subtotal.toFixed(2)}</span>
               </div>
               ${
                 discount > 0
-                  ? `
-                <div style="font-size: 14px; margin-bottom: 10px; text-rendering: optimizeLegibility;">
-                  <span style="display: inline-block; width: 100px; text-align: left; color: #000;">Discount:</span>
-                  <span style="display: inline-block; width: 80px; text-align: right; color: #000;">$${discount.toFixed(2)}</span>
-                </div>
-              `
-                  : ""
-              }
-              ${
-                taxRate > 0
-                  ? `
-                <div style="font-size: 14px; margin-bottom: 10px; text-rendering: optimizeLegibility;">
-                  <span style="display: inline-block; width: 100px; text-align: left; color: #000;">Tax:</span>
-                  <span style="display: inline-block; width: 80px; text-align: right; color: #000;">$${taxAmount.toFixed(2)}</span>
-                </div>
-              `
+                  ? `<div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; text-rendering: optimizeLegibility;">
+                      <span style="color: #111827; font-weight: 600;">Discount</span>
+                      <span style="color: #111827; font-weight: bold;">-$${discount.toFixed(2)}</span>
+                    </div>`
                   : ""
               }
               ${
                 shipping > 0
-                  ? `
-                <div style="font-size: 14px; margin-bottom: 10px; text-rendering: optimizeLegibility;">
-                  <span style="display: inline-block; width: 100px; text-align: left; color: #000;">Shipping:</span>
-                  <span style="display: inline-block; width: 80px; text-align: right; color: #000;">$${shipping.toFixed(2)}</span>
-                </div>
-              `
+                  ? `<div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; text-rendering: optimizeLegibility;">
+                      <span style="color: #111827; font-weight: 600;">Shipping</span>
+                      <span style="color: #111827; font-weight: bold;">$${shipping.toFixed(2)}</span>
+                    </div>`
                   : ""
               }
-              <div style="border-top: 2px solid #000; padding-top: 10px; margin-top: 10px;">
-                <div style="font-size: 18px; font-weight: bold; text-rendering: optimizeLegibility;">
-                  <span style="display: inline-block; width: 100px; text-align: left; color: #000;">Balance Due:</span>
-                  <span style="display: inline-block; width: 80px; text-align: right; color: #000;">$${total.toFixed(2)}</span>
+              ${
+                taxRate > 0
+                  ? `<div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; text-rendering: optimizeLegibility;">
+                      <span style="color: #111827; font-weight: 600;">Tax (${taxRate}%)</span>
+                      <span style="color: #111827; font-weight: bold;">$${taxAmount.toFixed(2)}</span>
+                    </div>`
+                  : ""
+              }
+              <div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; border-top: 1px solid #d1d5db; padding-top: 8px; text-rendering: optimizeLegibility;">
+                <span style="color: #111827; font-weight: bold;">TOTAL USD</span>
+                <span style="color: #111827; font-weight: bold;">$${total.toFixed(2)}</span>
                 </div>
               </div>
+          </div>
+
+          <!-- Payment Advice Section -->
+          <div style="border-top: 2px dashed #ccc; padding-top: 20px; margin-top: 20px;">
+            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+              <div style="font-size: 16px; font-weight: bold; color: #000; margin-right: 10px; text-rendering: optimizeLegibility;">PAYMENT ADVICE</div>
+              <div style="font-size: 20px; color: #ccc;">✂️</div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+              <div style="flex: 1;">
+                <div style="font-size: 12px; margin-bottom: 4px; color: #666; text-rendering: optimizeLegibility;">To:</div>
+                <div style="font-size: 12px; color: #333; line-height: 1.3; text-rendering: optimizeLegibility; white-space: pre-line;">
+                  ${toDetails || "Client Name\nClient Address\nCity, State ZIP\nCountry"}
+                </div>
+              </div>
+              <div style="flex: 1; text-align: right;">
+                <div style="font-size: 12px; color: #333; text-rendering: optimizeLegibility; white-space: pre-line;">
+                  ${extraNotes || "Note: The sender will write additional details here"}
+                  ${discount > 0 ? `\nDiscount: $${discount.toFixed(2)}` : ""}
+                  ${shipping > 0 ? `\nShipping: $${shipping.toFixed(2)}` : ""}
+                  ${taxRate > 0 ? `\nTax Rate: ${taxRate}%` : ""}
+                </div>
+              </div>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+              <div style="font-size: 12px; margin-bottom: 4px; color: #666; text-rendering: optimizeLegibility;">
+                Amount Enclosed: <span style="font-weight: bold; color: #000;">$${total.toFixed(2)}</span>
+              </div>
+              <div style="border-bottom: 1px solid #333; height: 20px; margin-bottom: 4px;"></div>
+              <div style="font-size: 10px; color: #666; text-rendering: optimizeLegibility;">Enter the amount you are paying above</div>
+            </div>
+            
+            <div style="font-size: 10px; color: #666; text-align: center; text-rendering: optimizeLegibility;">
+              Registered Office: ${fromDetails || "123 Progress Lane, Seattle, Washington, 98101, United States"}
             </div>
           </div>
 
@@ -277,20 +295,41 @@ export default function InvoiceMaker() {
 
       // Convert to canvas and then to PDF with balanced quality settings
       const canvas = await html2canvas(invoiceDiv, {
-        scale: 1.5, // Balanced resolution for quality and compatibility
+        scale: 2, // Higher resolution for better quality
         useCORS: true,
         allowTaint: true,
         backgroundColor: "#ffffff",
         logging: false,
         removeContainer: true,
-        imageTimeout: 5000, // Balanced timeout
+        imageTimeout: 10000, // Longer timeout for mobile
         foreignObjectRendering: false, // Disable for compatibility
+        width: invoiceDiv.scrollWidth, // Use actual content width
+        height: invoiceDiv.scrollHeight, // Use actual content height
         ignoreElements: (element) => {
           // Skip non-essential elements
           return element.tagName === "SCRIPT" || element.tagName === "STYLE";
         },
         onclone: (clonedDoc) => {
-          // Basic DOM optimization
+          // Force desktop viewport and layout with minimal spacing
+          const viewport = clonedDoc.querySelector('meta[name="viewport"]');
+          if (viewport) {
+            viewport.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+          } else {
+            const meta = clonedDoc.createElement('meta');
+            meta.setAttribute('name', 'viewport');
+            meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+            clonedDoc.head.appendChild(meta);
+          }
+          
+          // Minimize body margins and padding
+          const body = clonedDoc.body;
+          if (body) {
+            body.style.margin = "0";
+            body.style.padding = "0";
+            body.style.overflow = "visible";
+          }
+          
+          // Force desktop layout on all elements
           const allElements = clonedDoc.querySelectorAll("*");
           allElements.forEach((el) => {
             if (el instanceof HTMLElement) {
@@ -298,6 +337,9 @@ export default function InvoiceMaker() {
               el.style.animation = "none";
               el.style.transition = "none";
               el.style.filter = "none";
+              el.style.maxWidth = "none";
+              el.style.minWidth = "none";
+              el.style.width = el.style.width || "auto";
             }
           });
         },
@@ -317,17 +359,20 @@ export default function InvoiceMaker() {
       const imgWidth = pdfWidth - 20;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      let heightLeft = imgHeight;
-      let position = 10;
-
-      pdf.addImage(imgData, "JPEG", 10, position, imgWidth, imgHeight);
-      heightLeft -= pdfHeight - 20;
-
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight + 10;
-        pdf.addPage();
-        pdf.addImage(imgData, "JPEG", 10, position, imgWidth, imgHeight);
-        heightLeft -= pdfHeight - 20;
+      // Always try single page first - scale down if needed
+      const maxSinglePageHeight = pdfHeight - 40; // Leave more margin
+      
+      if (imgHeight <= maxSinglePageHeight) {
+        // Fits on single page - add image at top
+        pdf.addImage(imgData, "JPEG", 10, 10, imgWidth, imgHeight);
+      } else {
+        // Scale down to fit on single page
+        const scaleFactor = maxSinglePageHeight / imgHeight;
+        const scaledWidth = imgWidth * scaleFactor;
+        const scaledHeight = imgHeight * scaleFactor;
+        const xPosition = (pdfWidth - scaledWidth) / 2;
+        
+        pdf.addImage(imgData, "JPEG", xPosition, 10, scaledWidth, scaledHeight);
       }
 
       // Download the PDF
@@ -351,6 +396,16 @@ export default function InvoiceMaker() {
       return;
     }
 
+    if (!fromDetails.trim()) {
+      alert("Please enter your company details");
+      return;
+    }
+
+    if (!toDetails.trim()) {
+      alert("Please enter the client's details");
+      return;
+    }
+
     setIsEmailSending(true);
 
     try {
@@ -362,167 +417,183 @@ export default function InvoiceMaker() {
       invoiceDiv.style.position = "absolute";
       invoiceDiv.style.left = "-9999px";
       invoiceDiv.style.top = "0";
-      invoiceDiv.style.width = "600px"; // Reduced width for faster processing
+      // Force consistent PDF settings for all devices - desktop layout
+      invoiceDiv.style.width = "800px";
+      invoiceDiv.style.maxWidth = "800px";
+      invoiceDiv.style.minWidth = "800px";
       invoiceDiv.style.backgroundColor = "white";
-      invoiceDiv.style.padding = "15px"; // Reduced padding for faster processing
+      invoiceDiv.style.padding = "20px";
       invoiceDiv.style.fontFamily = "Arial, sans-serif";
       invoiceDiv.style.color = "#333";
+      invoiceDiv.style.fontSize = "16px";
+      invoiceDiv.style.lineHeight = "1.4";
+      // Force desktop layout
+      invoiceDiv.style.display = "block";
+      invoiceDiv.style.boxSizing = "border-box";
 
       invoiceDiv.innerHTML = `
-        <div style="font-family: Arial, sans-serif; max-width: 800px; margin: 0 auto; padding: 20px; background: white; color: #333;">
-          <!-- Header Section -->
-          <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px;">
-            <div style="flex: 1;">
-              <div style="font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #333;">${
-                fromDetails.split("\n")[0] || "Company Name"
-              }</div>
-              <div style="font-size: 14px; color: #666; line-height: 1.4; white-space: pre-line;">${
-                fromDetails ||
-                "Company Address\nCity, State ZIP\nPhone: (555) 123-4567"
-              }</div>
+        <div style="font-family: Arial, sans-serif; width: 100%; max-width: 100%; margin: 0; padding: 10px; background: white; color: #333; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; box-sizing: border-box;">
+          <!-- Header Section - DRAFT INVOICE Layout -->
+          <div style="position: relative; margin-bottom: 30px;">
+            <!-- Top Row - Logo only -->
+            <div style="display: flex; justify-content: flex-end; align-items: flex-start; margin-bottom: 20px;">
+              <!-- Logo -->
+              <div>
+                ${
+                  logo
+                    ? `<img src="${logo}" style="width: 100px; height: 100px; object-fit: contain; border-radius: 50%; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />`
+                    : ""
+                }
+              </div>
             </div>
-                          <div style="text-align: center; flex: 1;">
-                <div style="display: flex; flex-direction: column; align-items: center; margin-bottom: 20px; margin-right: 20px;">
-                  <div style="font-size: 36px; font-weight: bold; color: #333;">${invoiceType}</div>
-                  ${
-                    logo
-                      ? `<img src="${logo}" style="max-width: 150px; max-height: 150px; margin-top: 20px; border-radius: 50%; object-fit: cover;" />`
-                      : ""
-                  }
+            
+            <!-- Bottom Row - Company Details and Invoice Details -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+              <!-- Left Side - Company Details -->
+              <div style="flex: 1;">
+                <div style="font-size: 32px; font-weight: bold; margin-bottom: 8px; color: #000; letter-spacing: 1px; text-rendering: optimizeLegibility;">
+                  ${invoiceType.toUpperCase()} 
+                </div>
+                <div style="font-size: 18px; font-weight: 500; color: #000; margin-bottom: 8px; text-rendering: optimizeLegibility;">
+                  ${fromDetails.split("\n")[0] || "Your Company Name"}
+              </div>
+                <div style="font-size: 12px; color: #333; line-height: 1.3; text-rendering: optimizeLegibility; white-space: pre-line;">
+                  ${fromDetails || "Your Company Name\nYour Company Address\nCity, State ZIP\nCountry"}
                 </div>
               </div>
-          </div>
-
-          <!-- Invoice Details and Total -->
-          <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-            <div style="flex: 1;">
-              <div style="margin-bottom: 20px;">
-                <h3 style="font-size: 18px; margin: 0 0 10px 0; color: #333;">Bill To:</h3>
-                <div style="font-size: 14px; color: #666; line-height: 1.4; white-space: pre-line;">${
-                  toDetails || "Client Name\nClient Address\nCity, State ZIP"
-                }</div>
-              </div>
-              <div style="font-size: 14px; color: #666;">
-                <div style="margin-bottom: 5px;"><strong>Invoice #:</strong> ${invoiceNumber}</div>
-                <div style="margin-bottom: 5px;"><strong>Terms:</strong> Due On Receipt</div>
-                <div style="margin-bottom: 5px;"><strong>Issued:</strong> ${new Date(
-                  invoiceDate
-                ).toLocaleDateString()}</div>
-                <div style="margin-bottom: 5px;"><strong>Due:</strong> ${new Date(
-                  invoiceDate
-                ).toLocaleDateString()}</div>
+              
+              <!-- Right Side - Invoice Details -->
+              <div style="text-align: right; flex: 1;">
+                <div style="text-align: left; margin-top: 10px;">
+                  <div style="font-size: 12px; margin-bottom: 4px; color: #666; text-rendering: optimizeLegibility;">Invoice Date</div>
+                  <div style="font-size: 14px; font-weight: 600; color: #000; margin-bottom: 20px; text-rendering: optimizeLegibility;">${new Date(invoiceDate).toLocaleDateString()}</div>
+                  <div style="font-size: 12px; margin-bottom: 4px; color: #666; text-rendering: optimizeLegibility;">Invoice Number</div>
+                  <div style="font-size: 14px; font-weight: 600; color: #000; text-rendering: optimizeLegibility;">${invoiceNumber}</div>
+                </div>
               </div>
             </div>
-            <div style="text-align: center; flex: 1;">
-              <div style="margin-top: 60px;">
-                <div style="font-size: 18px; margin-bottom: 5px; color: #333;">Invoice Total:</div>
-                <div style="font-size: 32px; font-weight: bold; color: #333;">$${total.toFixed(
-                  2
-                )}</div>
-              </div>
-            </div>
+            
           </div>
-
+            
           <!-- Items Table -->
-          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
-            <thead>
-              <tr style="background: #333; color: white;">
-                <th style="padding: 10px; text-align: left; font-weight: bold; font-size: 14px; text-rendering: optimizeLegibility;">Item Description</th>
-                <th style="padding: 10px; text-align: right; font-weight: bold; font-size: 14px; text-rendering: optimizeLegibility;">Price</th>
-                <th style="padding: 10px; text-align: center; font-weight: bold; font-size: 14px; text-rendering: optimizeLegibility;">Quantity</th>
-                <th style="padding: 10px; text-align: right; font-weight: bold; font-size: 14px; text-rendering: optimizeLegibility;">Tax</th>
-                <th style="padding: 10px; text-align: right; font-weight: bold; font-size: 14px; text-rendering: optimizeLegibility;">Total</th>
-              </tr>
-            </thead>
-            <tbody>
-              ${items
-                .map((item) => {
-                  const itemTax = item.amount * (taxRate / 100);
-                  return `
-                  <tr style="border-bottom: 1px solid #eee;">
-                    <td style="padding: 10px; font-size: 14px; color: #000; text-rendering: optimizeLegibility;">${
-                      item.name || "No name"
-                    }</td>
-                    <td style="padding: 10px; text-align: right; font-size: 14px; color: #000; text-rendering: optimizeLegibility;">$${item.price.toFixed(
-                      2
-                    )}</td>
-                    <td style="padding: 10px; text-align: center; font-size: 14px; color: #000; text-rendering: optimizeLegibility;">${
-                      item.quantity
-                    }</td>
-                    <td style="padding: 10px; text-align: right; font-size: 14px; color: #000; text-rendering: optimizeLegibility;">$${itemTax.toFixed(
-                      2
-                    )}</td>
-                    <td style="padding: 10px; text-align: right; font-size: 14px; font-weight: bold; color: #000; text-rendering: optimizeLegibility;">$${item.amount.toFixed(
-                      2
-                    )}</td>
-                  </tr>
-                `;
-                })
-                .join("")}
-            </tbody>
-          </table>
-
-          <!-- Notes and Summary -->
-          <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-            <div style="flex: 1; margin-right: 40px;">
-              ${
-                extraNotes
-                  ? `
-                <div>
-                  <h3 style="font-size: 18px; margin: 0 0 10px 0; color: #000; font-weight: bold; text-rendering: optimizeLegibility;">Notes:</h3>
-                  <div style="font-size: 14px; color: #333; line-height: 1.4; white-space: pre-line; text-rendering: optimizeLegibility;">${extraNotes}</div>
-                </div>
-              `
-                  : ""
-              }
-            </div>
-            <div style="flex: 1; text-align: right;">
-              <div style="font-size: 14px; margin-bottom: 10px; text-rendering: optimizeLegibility;">
-                <span style="display: inline-block; width: 100px; text-align: left; color: #000;">Subtotal:</span>
-                <span style="display: inline-block; width: 80px; text-align: right; color: #000;">$${subtotal.toFixed(2)}</span>
+          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; border: 1px solid #d1d5db; table-layout: fixed;">
+              <thead>
+              <tr style="background: #f8f9fa; color: #000;">
+                <th style="padding: 10px 8px; text-align: left; font-weight: bold; font-size: 14px; border: 1px solid #d1d5db; width: 50%;">Description</th>
+                <th style="padding: 10px 8px; text-align: right; font-weight: bold; font-size: 14px; border: 1px solid #d1d5db; width: 20%;">Price</th>
+                <th style="padding: 10px 8px; text-align: center; font-weight: bold; font-size: 14px; border: 1px solid #d1d5db; width: 15%;">Quantity</th>
+                <th style="padding: 10px 8px; text-align: right; font-weight: bold; font-size: 14px; border: 1px solid #d1d5db; width: 15%;">Total</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${items
+                  .map((item) => {
+                    return `
+                    <tr style="background: white;">
+                      <td style="padding: 8px; font-size: 14px; color: #111827; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; vertical-align: top;">${
+                        item.name || "No name"
+                      }</td>
+                      <td style="padding: 8px; text-align: right; font-size: 14px; color: #111827; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; vertical-align: top;">$${item.price.toFixed(
+                        2
+                      )}</td>
+                      <td style="padding: 8px; text-align: center; font-size: 14px; color: #111827; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; vertical-align: top;">${
+                        item.quantity
+                      }</td>
+                      <td style="padding: 8px; text-align: right; font-size: 14px; font-weight: bold; color: #111827; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; vertical-align: top;">$${item.amount.toFixed(
+                        2
+                      )}</td>
+                    </tr>
+                  `;
+                  })
+                  .join("")}
+              </tbody>
+            </table>
+            
+          <!-- Summary Section and Due Date -->
+          <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px;">
+            <div style="text-align: left;">
+              <div style="font-size: 14px; color: #333; text-rendering: optimizeLegibility;">
+                Due Date: ${new Date(invoiceDate).toLocaleDateString()}
+                  </div>
               </div>
-              ${
-                discount > 0
-                  ? `
-                <div style="font-size: 14px; margin-bottom: 10px; text-rendering: optimizeLegibility;">
-                  <span style="display: inline-block; width: 100px; text-align: left; color: #000;">Discount:</span>
-                  <span style="display: inline-block; width: 80px; text-align: right; color: #000;">$${discount.toFixed(2)}</span>
+            <div style="text-align: right; min-width: 200px;">
+              <div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; text-rendering: optimizeLegibility;">
+                <span style="color: #111827; font-weight: 600;">Subtotal</span>
+                <span style="color: #111827; font-weight: bold;">$${subtotal.toFixed(2)}</span>
                 </div>
-              `
-                  : ""
-              }
-              ${
-                taxRate > 0
-                  ? `
-                <div style="font-size: 14px; margin-bottom: 10px; text-rendering: optimizeLegibility;">
-                  <span style="display: inline-block; width: 100px; text-align: left; color: #000;">Tax:</span>
-                  <span style="display: inline-block; width: 80px; text-align: right; color: #000;">$${taxAmount.toFixed(2)}</span>
-                </div>
-              `
-                  : ""
-              }
-              ${
+                ${
+                  discount > 0
+                  ? `<div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; text-rendering: optimizeLegibility;">
+                      <span style="color: #111827; font-weight: 600;">Discount</span>
+                      <span style="color: #111827; font-weight: bold;">-$${discount.toFixed(2)}</span>
+                    </div>`
+                    : ""
+                }
+                ${
                 shipping > 0
-                  ? `
-                <div style="font-size: 14px; margin-bottom: 10px; text-rendering: optimizeLegibility;">
-                  <span style="display: inline-block; width: 100px; text-align: left; color: #000;">Shipping:</span>
-                  <span style="display: inline-block; width: 80px; text-align: right; color: #000;">$${shipping.toFixed(2)}</span>
-                </div>
-              `
+                  ? `<div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; text-rendering: optimizeLegibility;">
+                      <span style="color: #111827; font-weight: 600;">Shipping</span>
+                      <span style="color: #111827; font-weight: bold;">$${shipping.toFixed(2)}</span>
+                    </div>`
+                    : ""
+                }
+                ${
+                taxRate > 0
+                  ? `<div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; text-rendering: optimizeLegibility;">
+                      <span style="color: #111827; font-weight: 600;">Tax (${taxRate}%)</span>
+                      <span style="color: #111827; font-weight: bold;">$${taxAmount.toFixed(2)}</span>
+                    </div>`
                   : ""
               }
-              <div style="border-top: 2px solid #000; padding-top: 10px; margin-top: 10px;">
-                <div style="font-size: 18px; font-weight: bold; text-rendering: optimizeLegibility;">
-                  <span style="display: inline-block; width: 100px; text-align: left; color: #000;">Balance Due:</span>
-                  <span style="display: inline-block; width: 80px; text-align: right; color: #000;">$${total.toFixed(2)}</span>
+              <div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; border-top: 1px solid #d1d5db; padding-top: 8px; text-rendering: optimizeLegibility;">
+                <span style="color: #111827; font-weight: bold;">TOTAL USD</span>
+                <span style="color: #111827; font-weight: bold;">$${total.toFixed(2)}</span>
                 </div>
               </div>
+            </div>
+            
+          <!-- Payment Advice Section -->
+          <div style="border-top: 2px dashed #ccc; padding-top: 20px; margin-top: 20px;">
+            <div style="display: flex; align-items: center; margin-bottom: 15px;">
+              <div style="font-size: 16px; font-weight: bold; color: #000; margin-right: 10px; text-rendering: optimizeLegibility;">PAYMENT ADVICE</div>
+              <div style="font-size: 20px; color: #ccc;">✂️</div>
+            </div>
+            
+            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
+              <div style="flex: 1;">
+                <div style="font-size: 12px; margin-bottom: 4px; color: #666; text-rendering: optimizeLegibility;">To:</div>
+                <div style="font-size: 12px; color: #333; line-height: 1.3; text-rendering: optimizeLegibility; white-space: pre-line;">
+                  ${toDetails || "Client Name\nClient Address\nCity, State ZIP\nCountry"}
+                </div>
+              </div>
+              <div style="flex: 1; text-align: right;">
+                <div style="font-size: 12px; color: #333; text-rendering: optimizeLegibility; white-space: pre-line;">
+                  ${extraNotes || "Note: The sender will write additional details here"}
+                  ${discount > 0 ? `\nDiscount: $${discount.toFixed(2)}` : ""}
+                  ${shipping > 0 ? `\nShipping: $${shipping.toFixed(2)}` : ""}
+                  ${taxRate > 0 ? `\nTax Rate: ${taxRate}%` : ""}
+                </div>
+              </div>
+            </div>
+            
+            <div style="margin-bottom: 20px;">
+              <div style="font-size: 12px; margin-bottom: 4px; color: #666; text-rendering: optimizeLegibility;">
+                Amount Enclosed: <span style="font-weight: bold; color: #000;">$${total.toFixed(2)}</span>
+              </div>
+              <div style="border-bottom: 1px solid #333; height: 20px; margin-bottom: 4px;"></div>
+              <div style="font-size: 10px; color: #666; text-rendering: optimizeLegibility;">Enter the amount you are paying above</div>
+            </div>
+            
+            <div style="font-size: 10px; color: #666; text-align: center; text-rendering: optimizeLegibility;">
+              Registered Office: ${fromDetails || "123 Progress Lane, Seattle, Washington, 98101, United States"}
             </div>
           </div>
-
+              </div>
+            </div>
+            
           <!-- Footer -->
           <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 30px; padding-top: 10px; border-top: 1px solid #eee; font-size: 12px; color: #666;">
-           
+         
           </div>
         </div>
       `;
@@ -531,20 +602,41 @@ export default function InvoiceMaker() {
 
       // Convert to canvas and then to PDF with balanced quality settings
       const canvas = await html2canvas(invoiceDiv, {
-        scale: 1.5, // Balanced resolution for quality and compatibility
+        scale: 2, // Higher resolution for better quality
         useCORS: true,
         allowTaint: true,
         backgroundColor: "#ffffff",
         logging: false,
         removeContainer: true,
-        imageTimeout: 5000, // Balanced timeout
+        imageTimeout: 10000, // Longer timeout for mobile
         foreignObjectRendering: false, // Disable for compatibility
+        width: invoiceDiv.scrollWidth, // Use actual content width
+        height: invoiceDiv.scrollHeight, // Use actual content height
         ignoreElements: (element) => {
           // Skip non-essential elements
           return element.tagName === "SCRIPT" || element.tagName === "STYLE";
         },
         onclone: (clonedDoc) => {
-          // Basic DOM optimization
+          // Force desktop viewport and layout
+          const viewport = clonedDoc.querySelector('meta[name="viewport"]');
+          if (viewport) {
+            viewport.setAttribute('content', 'width=800, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+    } else {
+            const meta = clonedDoc.createElement('meta');
+            meta.setAttribute('name', 'viewport');
+            meta.setAttribute('content', 'width=800, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
+            clonedDoc.head.appendChild(meta);
+          }
+          
+          // Minimize body margins and padding
+          const body = clonedDoc.body;
+          if (body) {
+            body.style.margin = "0";
+            body.style.padding = "0";
+            body.style.overflow = "visible";
+          }
+          
+          // Force desktop layout on all elements
           const allElements = clonedDoc.querySelectorAll("*");
           allElements.forEach((el) => {
             if (el instanceof HTMLElement) {
@@ -552,6 +644,9 @@ export default function InvoiceMaker() {
               el.style.animation = "none";
               el.style.transition = "none";
               el.style.filter = "none";
+              el.style.maxWidth = "none";
+              el.style.minWidth = "none";
+              el.style.width = el.style.width || "auto";
             }
           });
         },
@@ -571,17 +666,20 @@ export default function InvoiceMaker() {
       const imgWidth = pdfWidth - 20;
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
-      let heightLeft = imgHeight;
-      let position = 10;
-
-      pdf.addImage(imgData, "JPEG", 10, position, imgWidth, imgHeight);
-      heightLeft -= pdfHeight - 20;
-
-      while (heightLeft >= 0) {
-        position = heightLeft - imgHeight + 10;
-        pdf.addPage();
-        pdf.addImage(imgData, "JPEG", 10, position, imgWidth, imgHeight);
-        heightLeft -= pdfHeight - 20;
+      // Always try single page first - scale down if needed
+      const maxSinglePageHeight = pdfHeight - 40; // Leave more margin
+      
+      if (imgHeight <= maxSinglePageHeight) {
+        // Fits on single page - add image at top
+        pdf.addImage(imgData, "JPEG", 10, 10, imgWidth, imgHeight);
+      } else {
+        // Scale down to fit on single page
+        const scaleFactor = maxSinglePageHeight / imgHeight;
+        const scaledWidth = imgWidth * scaleFactor;
+        const scaledHeight = imgHeight * scaleFactor;
+        const xPosition = (pdfWidth - scaledWidth) / 2;
+        
+        pdf.addImage(imgData, "JPEG", xPosition, 10, scaledWidth, scaledHeight);
       }
 
       // Convert PDF to base64
@@ -589,6 +687,22 @@ export default function InvoiceMaker() {
       const pdfBase64 = pdf.output("datauristring").split(",")[1];
 
       console.log("📧 Sending email with lightning speed...");
+      console.log("Email data:", {
+        to: clientEmail,
+        invoiceNumber,
+        invoiceType,
+        fromDetails: fromDetails.trim(),
+        toDetails: toDetails.trim(),
+        total,
+        invoiceDate,
+        items: items.length,
+        taxRate,
+        discount,
+        shipping,
+        extraNotes,
+        logo: !!logo
+      });
+      
       // Send email with PDF attachment
       const response = await fetch("/api/send-email", {
         method: "POST",
@@ -599,8 +713,8 @@ export default function InvoiceMaker() {
           to: clientEmail,
           invoiceNumber,
           invoiceType,
-          fromDetails,
-          toDetails,
+          fromDetails: fromDetails.trim(),
+          toDetails: toDetails.trim(),
           total,
           invoiceDate,
           items,
@@ -629,199 +743,220 @@ export default function InvoiceMaker() {
   };
 
   const handlePreviewInvoice = () => {
-    // Open preview in new window
-    const previewWindow = window.open("", "_blank", "width=800,height=600");
-    if (previewWindow) {
-      previewWindow.document.write(`
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <title>Invoice Preview - ${invoiceNumber}</title>
-          <style>
-            body { font-family: Arial, sans-serif; margin: 40px; background: #f5f5f5; }
-            .invoice-container { background: white; padding: 40px; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); max-width: 800px; margin: 0 auto; }
-            .header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 40px; }
-            .company-info { flex: 1; }
-            .company-name { font-size: 24px; font-weight: bold; margin-bottom: 10px; color: #333; }
-            .company-details { font-size: 14px; color: #666; line-height: 1.4; }
-            .invoice-header { text-align: center; flex: 1; }
-            .invoice-title { font-size: 36px; font-weight: bold; color: #333; margin-bottom: 8px; }
-            .invoice-details { display: flex; justify-content: space-between; margin-bottom: 40px; }
-            .bill-to { flex: 1; }
-            .bill-to h3 { font-size: 18px; margin: 0 0 10px 0; color: #333; }
-            .bill-to-content { font-size: 14px; color: #666; line-height: 1.4; }
-            .invoice-meta { font-size: 14px; color: #666; }
-            .invoice-total { text-align: right; flex: 1; }
-            .total-label { font-size: 18px; margin-bottom: 10px; color: #333; }
-            .total-amount { font-size: 32px; font-weight: bold; color: #333; }
-            .items-table { width: 100%; border-collapse: collapse; margin-bottom: 30px; }
-            .items-table th { background: #333; color: white; padding: 15px; text-align: left; font-weight: bold; font-size: 14px; }
-            .items-table th.price, .items-table th.quantity, .items-table th.tax, .items-table th.total { text-align: right; }
-            .items-table th.quantity { text-align: center; }
-            .items-table td { padding: 15px; border-bottom: 1px solid #eee; font-size: 14px; }
-            .items-table td.price, .items-table td.quantity, .items-table td.tax, .items-table td.total { text-align: right; }
-            .items-table td.quantity { text-align: center; }
-            .items-table td.total { font-weight: bold; }
-            .summary-section { display: flex; justify-content: space-between; margin-bottom: 40px; }
-            .notes { flex: 1; margin-right: 40px; }
-            .notes h3 { font-size: 18px; margin: 0 0 10px 0; color: #333; }
-            .notes-content { font-size: 14px; color: #666; line-height: 1.4; }
-            .summary { flex: 1; text-align: right; }
-            .summary-row { font-size: 14px; margin-bottom: 10px; }
-            .summary-row span:first-child { display: inline-block; width: 100px; text-align: left; }
-            .summary-row span:last-child { display: inline-block; width: 80px; text-align: right; }
-            .balance-due { border-top: 2px solid #333; padding-top: 10px; margin-top: 10px; font-size: 18px; font-weight: bold; }
-            .footer { display: flex; justify-content: space-between; align-items: center; margin-top: 60px; padding-top: 20px; border-top: 1px solid #eee; font-size: 12px; color: #666; }
-            .footer-brand { display: flex; align-items: center; }
-            .brand-icon { width: 16px; height: 16px; background: #007bff; border-radius: 2px; margin: 0 5px; display: flex; align-items: center; justify-content: center; }
-            .brand-icon span { color: white; font-size: 10px; }
-          </style>
-        </head>
-        <body>
-          <div class="invoice-container">
-            <div class="header">
-              <div class="company-info">
-                <div class="company-name">${
-                  fromDetails.split("\n")[0] || "Company Name"
-                }</div>
-                <div class="company-details">${
-                  fromDetails ||
-                  "Company Address\nCity, State ZIP\nPhone: (555) 123-4567"
-                }</div>
-              </div>
-              <div class="invoice-header">
-                <div class="invoice-title" style="margin-bottom: 20px;">${invoiceType}</div>
-                ${
-                  logo
-                    ? `<img src="${logo}" style="max-width: 150px; max-height: 150px; border-radius: 50%; object-fit: cover;" />`
-                    : ""
-                }
-              </div>
-            </div>
-            
-            <div class="invoice-details">
-              <div class="bill-to">
-                <h3>Bill To:</h3>
-                <div class="bill-to-content">${
-                  toDetails || "Client Name\nClient Address\nCity, State ZIP"
-                }</div>
-                <div class="invoice-meta" style="margin-top: 20px;">
-                  <div style="margin-bottom: 5px;"><strong>Invoice #:</strong> ${invoiceNumber}</div>
-                  <div style="margin-bottom: 5px;"><strong>Terms:</strong> ${terms}</div>
-                  <div style="margin-bottom: 5px;"><strong>Issued:</strong> ${new Date(
-                    invoiceDate
-                  ).toLocaleDateString()}</div>
-                  <div style="margin-bottom: 5px;"><strong>Due:</strong> ${new Date(
-                    invoiceDate
-                  ).toLocaleDateString()}</div>
-                </div>
-              </div>
-              <div class="invoice-total">
-                <div style="margin-top: 60px; text-align: center;">
-                  <div style="font-size: 18px; margin-bottom: 5px; color: #333;">Invoice Total:</div>
-                  <div style="font-size: 32px; font-weight: bold; color: #333;">$${total.toFixed(
-                    2
-                  )}</div>
-                </div>
-              </div>
-            </div>
-            
-            <table class="items-table">
-              <thead>
-                <tr>
-                  <th>Item Description</th>
-                  <th class="price">Price</th>
-                  <th class="quantity">Quantity</th>
-                  <th class="tax">Tax</th>
-                  <th class="total">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${items
-                  .map((item) => {
-                    const itemTax = item.amount * (taxRate / 100);
-                    return `
-                    <tr>
-                      <td>${item.name || "No name"}</td>
-                      <td class="price">$${item.price.toFixed(2)}</td>
-                      <td class="quantity">${item.quantity}</td>
-                      <td class="tax">$${itemTax.toFixed(2)}</td>
-                      <td class="total">$${item.amount.toFixed(2)}</td>
-                    </tr>
-                  `;
-                  })
-                  .join("")}
-              </tbody>
-            </table>
-            
-            <div class="summary-section">
-              <div class="notes">
-                ${
-                  extraNotes
-                    ? `
-                  <div>
-                    <h3>Notes:</h3>
-                    <div class="notes-content">${extraNotes}</div>
-                  </div>
-                `
-                    : ""
-                }
-              </div>
-              <div class="summary">
-                <div class="summary-row">
-                  <span>Subtotal:</span>
-                  <span>$${subtotal.toFixed(2)}</span>
-                </div>
-                ${
-                  discount > 0
-                    ? `
-                  <div class="summary-row">
-                    <span>Discount:</span>
-                    <span>$${discount.toFixed(2)}</span>
-                  </div>
-                `
-                    : ""
-                }
-                ${
-                  taxRate > 0
-                    ? `
-                  <div class="summary-row">
-                    <span>Tax:</span>
-                    <span>$${taxAmount.toFixed(2)}</span>
-                  </div>
-                `
-                    : ""
-                }
-                ${
-                  shipping > 0
-                    ? `
-                  <div class="summary-row">
-                    <span>Shipping:</span>
-                    <span>$${shipping.toFixed(2)}</span>
-                  </div>
-                `
-                    : ""
-                }
-                <div class="summary-row balance-due">
-                  <span>Balance Due:</span>
-                  <span>$${total.toFixed(2)}</span>
-                </div>
-              </div>
-            </div>
-            
-         
-          </div>
-        </body>
-        </html>
-      `);
-      previewWindow.document.close();
-    } else {
-      alert("Please allow pop-ups to view the invoice preview.");
-    }
+    console.log("Preview clicked - Items:", items);
+    console.log("Items length:", items.length);
+    console.log("Items details:", items.map(item => ({ id: item.id, name: item.name, price: item.price, quantity: item.quantity, amount: item.amount })));
+    console.log("Subtotal:", subtotal);
+    console.log("Total:", total);
+    setShowPreview(true);
+  };
+
+  const closePreview = () => {
+    setShowPreview(false);
   };
 
   return (
     <div className="min-h-screen py-8 px-4 relative overflow-hidden">
+      {/* Preview Modal */}
+      {showPreview && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-1 sm:p-4 bg-black/80 backdrop-blur-sm">
+          <div className="relative w-full max-w-6xl max-h-[98vh] sm:max-h-[95vh] bg-white rounded-lg sm:rounded-2xl shadow-2xl overflow-hidden">
+            {/* Preview Header */}
+            <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 bg-gray-50">
+              <h2 className="text-lg sm:text-2xl font-bold text-gray-900">Invoice Preview</h2>
+              <button
+                onClick={closePreview}
+                className="p-2 text-gray-500 hover:text-gray-700 hover:bg-gray-200 rounded-lg transition-colors duration-200"
+              >
+                <X className="h-5 w-5 sm:h-6 sm:w-6" />
+              </button>
+              </div>
+            
+            {/* Preview Content - Exact PDF Structure */}
+            <div className="overflow-auto max-h-[calc(98vh-80px)] sm:max-h-[calc(95vh-80px)] p-1">
+              <div className="w-full" style={{minWidth: "800px"}}>
+                {/* Invoice Preview Content - Exact PDF HTML */}
+                <div 
+                  style={{
+                    fontFamily: "Arial, sans-serif",
+                    width: "100%",
+                    maxWidth: "100%",
+                    margin: "0 auto",
+                    padding: "10px",
+                    background: "white",
+                    color: "#333",
+                    WebkitFontSmoothing: "antialiased",
+                    MozOsxFontSmoothing: "grayscale",
+                    boxSizing: "border-box",
+                    minHeight: "fit-content"
+                  }}
+                >
+                  {/* Header Section - DRAFT INVOICE Layout */}
+                  <div style={{position: "relative", marginBottom: "30px"}}>
+                    {/* Top Row - Logo only */}
+                    <div style={{display: "flex", justifyContent: "flex-end", alignItems: "flex-start", marginBottom: "20px"}}>
+                      {/* Logo */}
+                      <div>
+                                                 {logo && (
+                           <img 
+                             src={logo} 
+                             alt="Company Logo" 
+                             style={{
+                               width: "100px", 
+                               height: "100px", 
+                               objectFit: "contain",
+                               borderRadius: "50%"
+                             }} 
+                           />
+                         )}
+                      </div>
+                    </div>
+                    
+                    {/* Bottom Row - Company Details and Invoice Details */}
+                    <div style={{display: "flex", justifyContent: "space-between", alignItems: "flex-start"}}>
+                      {/* Left Side - Company Details */}
+                      <div style={{flex: 1}}>
+                        <div style={{fontSize: "32px", fontWeight: "bold", marginBottom: "8px", color: "#000", letterSpacing: "1px"}}>
+                          {invoiceType.toUpperCase()}
+                        </div>
+                        <div style={{fontSize: "18px", fontWeight: "500", color: "#000", marginBottom: "8px"}}>
+                          {fromDetails.split("\n")[0] || "Your Company Name"}
+                        </div>
+                        <div style={{fontSize: "12px", color: "#333", lineHeight: "1.3", whiteSpace: "pre-line"}}>
+                          {fromDetails || "Your Company Name\nYour Company Address\nCity, State ZIP\nCountry"}
+                        </div>
+                      </div>
+                      
+                                             {/* Right Side - Invoice Details */}
+                       <div style={{textAlign: "right", flex: 1}}>
+                         <div style={{textAlign: "left", marginTop: "10px"}}>
+                           <div style={{fontSize: "12px", marginBottom: "4px", color: "#666"}}>Invoice Date</div>
+                           <div style={{fontSize: "14px", fontWeight: "600", color: "#000", marginBottom: "20px"}}>{new Date(invoiceDate).toLocaleDateString()}</div>
+                           <div style={{fontSize: "12px", marginBottom: "4px", color: "#666"}}>Invoice Number</div>
+                           <div style={{fontSize: "14px", fontWeight: "600", color: "#000"}}>{invoiceNumber}</div>
+                         </div>
+                       </div>
+                    </div>
+                    
+                  </div>
+            
+                  {/* Items Table */}
+                  <table style={{width: "100%", borderCollapse: "collapse", marginBottom: "20px", border: "1px solid #d1d5db", tableLayout: "fixed"}}>
+              <thead>
+                      <tr style={{background: "#f8f9fa", color: "#000"}}>
+                        <th style={{padding: "10px 8px", textAlign: "left", fontWeight: "bold", fontSize: "14px", border: "1px solid #d1d5db", width: "50%"}}>Description</th>
+                        <th style={{padding: "10px 8px", textAlign: "right", fontWeight: "bold", fontSize: "14px", border: "1px solid #d1d5db", width: "20%"}}>Unit Price</th>
+                        <th style={{padding: "10px 8px", textAlign: "center", fontWeight: "bold", fontSize: "14px", border: "1px solid #d1d5db", width: "15%"}}>Quantity</th>
+                        <th style={{padding: "10px 8px", textAlign: "right", fontWeight: "bold", fontSize: "14px", border: "1px solid #d1d5db", width: "15%"}}>Amount USD</th>
+                </tr>
+              </thead>
+              <tbody>
+                      {items && items.length > 0 ? (
+                        items.map((item, index) => {
+                          return (
+                            <tr key={item.id} style={{borderBottom: "1px solid #e5e7eb", background: "white"}}>
+                              <td style={{padding: "10px 8px", fontSize: "14px", color: "#111827", border: "1px solid #d1d5db", verticalAlign: "top"}}>
+                                {item.name || ""}
+                              </td>
+                              <td style={{padding: "10px 8px", textAlign: "right", fontSize: "14px", color: "#111827", border: "1px solid #d1d5db", verticalAlign: "top"}}>
+                                ${item.price.toFixed(2)}
+                              </td>
+                              <td style={{padding: "10px 8px", textAlign: "center", fontSize: "14px", color: "#111827", border: "1px solid #d1d5db", verticalAlign: "top"}}>
+                                {item.quantity}
+                              </td>
+                              <td style={{padding: "10px 8px", textAlign: "right", fontSize: "14px", fontWeight: "bold", color: "#111827", border: "1px solid #d1d5db", verticalAlign: "top"}}>
+                                ${item.amount.toFixed(2)}
+                              </td>
+                    </tr>
+                          );
+                        })
+                      ) : (
+                        <tr>
+                          <td colSpan={4} style={{padding: "32px", textAlign: "center", color: "#6b7280", border: "1px solid #d1d5db"}}>
+                            No items added yet. Please add items in the form above.
+                          </td>
+                        </tr>
+                      )}
+              </tbody>
+            </table>
+            
+                  {/* Summary Section and Due Date */}
+                  <div style={{display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "30px"}}>
+                    <div style={{textAlign: "left"}}>
+                      <div style={{fontSize: "14px", color: "#333"}}>
+                        Due Date: {new Date(invoiceDate).toLocaleDateString()}
+                      </div>
+                    </div>
+                    <div style={{textAlign: "right", minWidth: "200px"}}>
+                      <div style={{fontSize: "14px", marginBottom: "8px", display: "flex", justifyContent: "space-between"}}>
+                        <span style={{color: "#111827", fontWeight: "600"}}>Subtotal</span>
+                        <span style={{color: "#111827", fontWeight: "bold"}}>${subtotal.toFixed(2)}</span>
+                      </div>
+                      {discount > 0 && (
+                        <div style={{fontSize: "14px", marginBottom: "8px", display: "flex", justifyContent: "space-between"}}>
+                          <span style={{color: "#111827", fontWeight: "600"}}>Discount</span>
+                          <span style={{color: "#111827", fontWeight: "bold"}}>-${discount.toFixed(2)}</span>
+                        </div>
+                      )}
+                      {shipping > 0 && (
+                        <div style={{fontSize: "14px", marginBottom: "8px", display: "flex", justifyContent: "space-between"}}>
+                          <span style={{color: "#111827", fontWeight: "600"}}>Shipping</span>
+                          <span style={{color: "#111827", fontWeight: "bold"}}>${shipping.toFixed(2)}</span>
+                        </div>
+                      )}
+                      {taxRate > 0 && (
+                        <div style={{fontSize: "14px", marginBottom: "8px", display: "flex", justifyContent: "space-between"}}>
+                          <span style={{color: "#111827", fontWeight: "600"}}>Tax ({taxRate}%)</span>
+                          <span style={{color: "#111827", fontWeight: "bold"}}>${taxAmount.toFixed(2)}</span>
+                        </div>
+                      )}
+                      <div style={{fontSize: "14px", marginBottom: "8px", display: "flex", justifyContent: "space-between", borderTop: "1px solid #d1d5db", paddingTop: "8px"}}>
+                        <span style={{color: "#111827", fontWeight: "bold"}}>TOTAL USD</span>
+                        <span style={{color: "#111827", fontWeight: "bold"}}>${total.toFixed(2)}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Payment Advice Section */}
+                  <div style={{borderTop: "2px dashed #ccc", paddingTop: "20px", marginTop: "20px"}}>
+                    <div style={{display: "flex", alignItems: "center", marginBottom: "15px"}}>
+                      <div style={{fontSize: "16px", fontWeight: "bold", color: "#000", marginRight: "10px"}}>PAYMENT ADVICE</div>
+                      <div style={{fontSize: "20px", color: "#ccc"}}>✂️</div>
+                </div>
+                    
+                    <div style={{display: "flex", justifyContent: "space-between", marginBottom: "20px"}}>
+                      <div style={{flex: 1}}>
+                        <div style={{fontSize: "12px", marginBottom: "4px", color: "#666"}}>To:</div>
+                        <div style={{fontSize: "12px", color: "#333", lineHeight: "1.3", whiteSpace: "pre-line"}}>
+                          {toDetails || "Client Name\nClient Address\nCity, State ZIP\nCountry"}
+                        </div>
+                      </div>
+                      <div style={{flex: 1, textAlign: "right"}}>
+                        <div style={{fontSize: "12px", color: "#333", whiteSpace: "pre-line"}}>
+                          {extraNotes || "Note: The sender will write additional details here"}
+                </div>
+              </div>
+            </div>
+            
+                    <div style={{marginBottom: "20px"}}>
+                      <div style={{fontSize: "12px", marginBottom: "4px", color: "#666"}}>
+                        Amount Enclosed: <span style={{fontWeight: "bold", color: "#000"}}>${total.toFixed(2)}</span>
+                      </div>
+                      <div style={{borderBottom: "1px solid #333", height: "20px", marginBottom: "4px"}}></div>
+                      <div style={{fontSize: "10px", color: "#666"}}>Enter the amount you are paying above</div>
+                    </div>
+         
+                    <div style={{fontSize: "10px", color: "#666", textAlign: "center"}}>
+                      Registered Office: {fromDetails || "123 Progress Lane, Seattle, Washington, 98101, United States"}
+          </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Animated background elements */}
       <div className="fixed inset-0 overflow-hidden pointer-events-none">
         <div className="absolute top-20 left-10 w-72 h-72 bg-purple-500/10 rounded-full blur-3xl float-animation" />
@@ -1176,3 +1311,4 @@ Phone: (02) 9123 4567`}
     </div>
   );
 }
+
