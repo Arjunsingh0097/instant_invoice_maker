@@ -759,8 +759,8 @@ export default function InvoiceMaker() {
     <div className="min-h-screen py-8 px-4 relative overflow-hidden">
       {/* Preview Modal */}
       {showPreview && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-1 sm:p-4 bg-black/80 backdrop-blur-sm">
-          <div className="relative w-full max-w-6xl max-h-[98vh] sm:max-h-[95vh] bg-white rounded-lg sm:rounded-2xl shadow-2xl overflow-hidden">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 lg:p-8 bg-black/80 backdrop-blur-sm">
+          <div className="relative w-full max-w-6xl max-h-[90vh] sm:max-h-[85vh] lg:max-h-[80vh] bg-white rounded-lg sm:rounded-2xl shadow-2xl overflow-hidden">
             {/* Preview Header */}
             <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 bg-gray-50">
               <h2 className="text-lg sm:text-2xl font-bold text-gray-900">Invoice Preview</h2>
@@ -773,7 +773,7 @@ export default function InvoiceMaker() {
               </div>
             
             {/* Preview Content - Exact PDF Structure */}
-            <div className="overflow-auto max-h-[calc(98vh-80px)] sm:max-h-[calc(95vh-80px)] p-1">
+            <div className="overflow-auto max-h-[calc(90vh-80px)] sm:max-h-[calc(85vh-80px)] lg:max-h-[calc(80vh-80px)] p-4 sm:p-6 lg:p-8">
               <div className="w-full" style={{minWidth: "800px"}}>
                 {/* Invoice Preview Content - Exact PDF HTML */}
                 <div 
@@ -782,13 +782,15 @@ export default function InvoiceMaker() {
                     width: "100%",
                     maxWidth: "100%",
                     margin: "0 auto",
-                    padding: "10px",
+                    padding: "20px",
                     background: "white",
                     color: "#333",
                     WebkitFontSmoothing: "antialiased",
                     MozOsxFontSmoothing: "grayscale",
                     boxSizing: "border-box",
-                    minHeight: "fit-content"
+                    minHeight: "fit-content",
+                    borderRadius: "8px",
+                    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
                   }}
                 >
                   {/* Header Section - DRAFT INVOICE Layout */}
