@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const emailConfig = {
       host: 'smtp.gmail.com',
@@ -20,7 +20,7 @@ export async function GET(request: NextRequest) {
       socketTimeout: 10000
     };
 
-    const transporter = nodemailer.createTransporter(emailConfig);
+    const transporter = nodemailer.createTransport(emailConfig);
     
     // Test connection
     await transporter.verify();

@@ -22,8 +22,7 @@ const emailConfig = {
   rateLimit: 5 // Reduce rate limit for Vercel
 };
 
-// Create transporter
-const transporter = nodemailer.createTransport(emailConfig);
+// Transporter will be created fresh for each email to avoid Vercel issues
 
 export interface EmailData {
   to: string;
@@ -36,35 +35,7 @@ export interface EmailData {
   }>;
 }
 
-// Retry function with exponential backoff
-const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
-
-const retryWithBackoff = async <T>(
-  fn: () => Promise<T>,
-  maxRetries: number = 3,
-  baseDelay: number = 1000
-): Promise<T> => {
-  let lastError: Error;
-  
-  for (let attempt = 1; attempt <= maxRetries; attempt++) {
-    try {
-      return await fn();
-    } catch (error) {
-      lastError = error as Error;
-      console.log(`Attempt ${attempt} failed:`, error instanceof Error ? error.message : 'Unknown error');
-      
-      if (attempt === maxRetries) {
-        throw lastError;
-      }
-      
-      const delay = baseDelay * Math.pow(2, attempt - 1);
-      console.log(`Retrying in ${delay}ms...`);
-      await sleep(delay);
-    }
-  }
-  
-  throw lastError!;
-};
+// Retry logic is now built into the sendEmail function
 
 export const sendEmail = async (emailData: EmailData): Promise<boolean> => {
   const maxRetries = 3;
@@ -88,7 +59,7 @@ export const sendEmail = async (emailData: EmailData): Promise<boolean> => {
       }
       
       // Create a fresh transporter for each attempt (Vercel-specific)
-      const freshTransporter = nodemailer.createTransporter(emailConfig);
+      const freshTransporter = nodemailer.createTransport(emailConfig);
       
       const mailOptions = {
         from: `"InvoiceCraft" <${emailConfig.auth.user}>`,
