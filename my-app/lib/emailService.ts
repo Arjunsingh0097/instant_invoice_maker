@@ -2,11 +2,23 @@ import nodemailer from 'nodemailer';
 
 // Email configuration using environment variables
 const emailConfig = {
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, // true for 465, false for other ports
   auth: {
     user: process.env.EMAIL_USER || 'arjunkondal00.7@gmail.com',
     pass: process.env.EMAIL_PASS || 'dspq kmok dpep oerh' // Gmail app password
-  }
+  },
+  tls: {
+    rejectUnauthorized: false
+  },
+  connectionTimeout: 60000, // 60 seconds
+  greetingTimeout: 30000, // 30 seconds
+  socketTimeout: 60000, // 60 seconds
+  pool: true,
+  maxConnections: 5,
+  maxMessages: 100,
+  rateLimit: 10 // max 10 emails per second
 };
 
 // Create transporter
@@ -23,15 +35,50 @@ export interface EmailData {
   }>;
 }
 
+// Retry function with exponential backoff
+const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms));
+
+const retryWithBackoff = async <T>(
+  fn: () => Promise<T>,
+  maxRetries: number = 3,
+  baseDelay: number = 1000
+): Promise<T> => {
+  let lastError: Error;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      return await fn();
+    } catch (error) {
+      lastError = error as Error;
+      console.log(`Attempt ${attempt} failed:`, error instanceof Error ? error.message : 'Unknown error');
+      
+      if (attempt === maxRetries) {
+        throw lastError;
+      }
+      
+      const delay = baseDelay * Math.pow(2, attempt - 1);
+      console.log(`Retrying in ${delay}ms...`);
+      await sleep(delay);
+    }
+  }
+  
+  throw lastError!;
+};
+
 export const sendEmail = async (emailData: EmailData): Promise<boolean> => {
   try {
+    console.log('=== EMAIL SEND ATTEMPT ===');
+    console.log('Environment:', process.env.NODE_ENV);
     console.log('Attempting to send email to:', emailData.to);
     console.log('Using email user:', emailConfig.auth.user);
     console.log('Email pass exists:', !!emailConfig.auth.pass);
+    console.log('Timestamp:', new Date().toISOString());
     
     // Verify transporter configuration
     if (!emailConfig.auth.user || !emailConfig.auth.pass) {
-      console.error('Email configuration missing: user or pass not set');
+      console.error('❌ Email configuration missing: user or pass not set');
+      console.error('EMAIL_USER:', process.env.EMAIL_USER ? 'Set' : 'Not set');
+      console.error('EMAIL_PASS:', process.env.EMAIL_PASS ? 'Set' : 'Not set');
       return false;
     }
     
@@ -50,19 +97,30 @@ export const sendEmail = async (emailData: EmailData): Promise<boolean> => {
       attachmentsCount: mailOptions.attachments.length
     });
 
-    // Verify connection before sending
-    await transporter.verify();
-    console.log('SMTP connection verified successfully');
-    
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent successfully:', info.messageId);
+    // Use retry logic for email sending
+    const result = await retryWithBackoff(async () => {
+      // Verify connection before sending
+      console.log('Verifying SMTP connection...');
+      await transporter.verify();
+      console.log('✅ SMTP connection verified successfully');
+      
+      console.log('Sending email...');
+      const info = await transporter.sendMail(mailOptions);
+      console.log('✅ Email sent successfully:', info.messageId);
+      return info;
+    }, 3, 2000); // 3 retries with 2 second base delay
+
+    console.log('=== EMAIL SEND SUCCESS ===');
     return true;
   } catch (error) {
-    console.error('Error sending email:', error);
+    console.error('❌ Email send failed after all retries:', error);
     if (error instanceof Error) {
       console.error('Error message:', error.message);
+      console.error('Error code:', (error as any).code);
+      console.error('Error response:', (error as any).response);
       console.error('Error stack:', error.stack);
     }
+    console.log('=== EMAIL SEND FAILED ===');
     return false;
   }
 };
