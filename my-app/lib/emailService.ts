@@ -98,7 +98,7 @@ export const sendEmail = async (emailData: EmailData): Promise<boolean> => {
     });
 
     // Use retry logic for email sending
-    const result = await retryWithBackoff(async () => {
+    await retryWithBackoff(async () => {
       // Verify connection before sending
       console.log('Verifying SMTP connection...');
       await transporter.verify();
@@ -116,8 +116,6 @@ export const sendEmail = async (emailData: EmailData): Promise<boolean> => {
     console.error('❌ Email send failed after all retries:', error);
     if (error instanceof Error) {
       console.error('Error message:', error.message);
-      console.error('Error code:', (error as any).code);
-      console.error('Error response:', (error as any).response);
       console.error('Error stack:', error.stack);
     }
     console.log('=== EMAIL SEND FAILED ===');

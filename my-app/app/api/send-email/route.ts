@@ -20,9 +20,6 @@ export async function POST(request: NextRequest) {
       taxRate,
       discount,
       shipping,
-      extraNotes,
-      logo,
-      total,
       pdfAttachment
     } = body;
 
