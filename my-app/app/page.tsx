@@ -663,9 +663,8 @@ Phone: (02) 9123 4567`}
                         type="date"
                         value={invoiceDate}
                         onChange={(e) => setInvoiceDate(e.target.value)}
-                        className="w-full px-4 py-3 glass-input rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-400/50 pr-12"
+                        className="w-full px-4 py-3 glass-input rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-400/50"
                       />
-                      <Calendar className="absolute right-4 top-1/2 transform -translate-y-1/2 h-5 w-5 text-white/50" />
                     </div>
                   </div>
                 </div>
