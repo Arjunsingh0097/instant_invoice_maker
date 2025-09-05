@@ -42,7 +42,13 @@ export default function InvoiceMaker() {
   const [taxRate, setTaxRate] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [showPreview, setShowPreview] = useState(false);
-  const [items, setItems] = useState<InvoiceItem[]>([]);
+  const [items, setItems] = useState<InvoiceItem[]>([{
+    id: "1",
+    name: "",
+    price: 0,
+    quantity: 1,
+    amount: 0,
+  }]);
 
   const calculateItemAmount = (price: number, quantity: number) => {
     return price * quantity;
@@ -111,13 +117,13 @@ export default function InvoiceMaker() {
       invoiceDiv.style.boxSizing = "border-box";
 
       invoiceDiv.innerHTML = `
-        <div style="margin: 0; background: #f6f7fb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1f2937; padding: 28px;">
-          <div style="max-width: 860px; margin: 0 auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+        <div style="margin: 0; background: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1f2937; padding: 0; width: 100%; height: 100vh;">
+          <div style="width: 100%; background: #fff; overflow: hidden;">
             <!-- Blue line at top -->
             <div style="height: 4px; background: #2563eb; width: 100%;"></div>
             <!-- Top header -->
             <div style="padding: 22px 28px; display: flex; align-items: center; justify-content: space-between;">
-              <div style="font-size: 28px; font-weight: 700; color: #374151;">Tax ${invoiceType}</div>
+              <div style="font-size: 28px; font-weight: 700; color: #374151;">${invoiceType === "Invoice" ? "Tax " : ""}${invoiceType}</div>
               <div style="display: flex; align-items: center; gap: 12px;">
                 ${
                   logo
@@ -132,7 +138,7 @@ export default function InvoiceMaker() {
               <div style="flex: 1;">
                 <div style="font-size: 11px; color: #9aa3b2; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px;">From</div>
                 <div style="font-weight: 700;">${fromDetails.split("\n")[0] || "Your Company Name"}</div>
-                <div style="font-size: 14px; color: #6b7280; line-height: 1.4; white-space: pre-line;">${fromDetails || "Your Company Name\nYour Company Address\nCity, State ZIP\nCountry"}</div>
+                <div style="font-size: 14px; color: #6b7280; line-height: 1.4; white-space: pre-line;">${fromDetails ? fromDetails.split("\n").slice(1).join("\n") : "Your Company Address\nCity, State ZIP\nCountry"}</div>
               </div>
               
               <div style="flex: 1;">
@@ -250,7 +256,7 @@ export default function InvoiceMaker() {
 
       document.body.appendChild(invoiceDiv);
 
-      // Convert to canvas and then to PDF with balanced quality settings
+      // Convert to canvas and then to PDF with full page settings
       const canvas = await html2canvas(invoiceDiv, {
         scale: 2, // Higher resolution for better quality
         useCORS: true,
@@ -262,6 +268,8 @@ export default function InvoiceMaker() {
         foreignObjectRendering: false, // Disable for compatibility
         width: invoiceDiv.scrollWidth, // Use actual content width
         height: invoiceDiv.scrollHeight, // Use actual content height
+        windowWidth: 1200,
+        windowHeight: 1600,
         ignoreElements: (element) => {
           // Skip non-essential elements
           return element.tagName === "SCRIPT" || element.tagName === "STYLE";
@@ -313,15 +321,15 @@ export default function InvoiceMaker() {
       const pdf = new jsPDF("p", "mm", "a4"); // Keep A4 but optimize processing
       const pdfWidth = pdf.internal.pageSize.getWidth();
       const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = pdfWidth - 20;
+      const imgWidth = pdfWidth; // Use full width
       const imgHeight = (canvas.height * imgWidth) / canvas.width;
 
       // Always try single page first - scale down if needed
-      const maxSinglePageHeight = pdfHeight - 40; // Leave more margin
+      const maxSinglePageHeight = pdfHeight; // Use full height
       
       if (imgHeight <= maxSinglePageHeight) {
         // Fits on single page - add image at top
-        pdf.addImage(imgData, "JPEG", 10, 10, imgWidth, imgHeight);
+        pdf.addImage(imgData, "JPEG", 0, 0, imgWidth, imgHeight);
       } else {
         // Scale down to fit on single page
         const scaleFactor = maxSinglePageHeight / imgHeight;
@@ -329,7 +337,7 @@ export default function InvoiceMaker() {
         const scaledHeight = imgHeight * scaleFactor;
         const xPosition = (pdfWidth - scaledWidth) / 2;
         
-        pdf.addImage(imgData, "JPEG", xPosition, 10, scaledWidth, scaledHeight);
+        pdf.addImage(imgData, "JPEG", xPosition, 0, scaledWidth, scaledHeight);
       }
 
       // Download the PDF
@@ -383,7 +391,7 @@ export default function InvoiceMaker() {
                     <div style={{height: "4px", background: "#2563eb", width: "100%"}}></div>
                     {/* Top header */}
                     <div style={{padding: "22px 28px", display: "flex", alignItems: "center", justifyContent: "space-between"}}>
-                      <div style={{fontSize: "28px", fontWeight: "700", color: "#374151"}}>Tax {invoiceType}</div>
+                      <div style={{fontSize: "28px", fontWeight: "700", color: "#374151"}}>{invoiceType === "Invoice" ? "Tax " : ""}{invoiceType}</div>
                       <div style={{display: "flex", alignItems: "center", gap: "12px"}}>
                         {logo ? (
                           <img src={logo} alt="Company Logo" style={{width: "120px", height: "120px", objectFit: "contain"}} />
@@ -401,7 +409,7 @@ export default function InvoiceMaker() {
                         <div style={{fontSize: "11px", color: "#9aa3b2", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: "8px"}}>From</div>
                         <div style={{fontWeight: "700"}}>{fromDetails.split("\n")[0] || "Your Company Name"}</div>
                         <div style={{fontSize: "14px", color: "#6b7280", lineHeight: "1.4", whiteSpace: "pre-line"}}>
-                          {fromDetails || "Your Company Name\nYour Company Address\nCity, State ZIP\nCountry"}
+                          {fromDetails ? fromDetails.split("\n").slice(1).join("\n") : "Your Company Address\nCity, State ZIP\nCountry"}
                         </div>
                       </div>
                       
