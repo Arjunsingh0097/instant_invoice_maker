@@ -1,7 +1,11 @@
 {
   "functions": {
-    "app/api/send-email/route.ts": {
+    "app/api/**/*.ts": {
+      "runtime": "nodejs18.x",
       "maxDuration": 30
     }
+  },
+  "env": {
+    "NODE_ENV": "production"
   }
 }

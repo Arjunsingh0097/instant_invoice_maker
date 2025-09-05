@@ -2,11 +2,24 @@ import nodemailer from 'nodemailer';
 
 // Email configuration using environment variables
 const emailConfig = {
-  service: 'gmail',
+  host: 'smtp.gmail.com',
+  port: 587,
+  secure: false, // true for 465, false for other ports
   auth: {
     user: process.env.EMAIL_USER || 'arjunkondal00.7@gmail.com',
     pass: process.env.EMAIL_PASS || 'dspq kmok dpep oerh' // Gmail app password
-  }
+  },
+  tls: {
+    rejectUnauthorized: false,
+    ciphers: 'SSLv3'
+  },
+  connectionTimeout: 30000, // 30 seconds
+  greetingTimeout: 15000, // 15 seconds
+  socketTimeout: 30000, // 30 seconds
+  pool: false, // Disable pooling for Vercel
+  maxConnections: 1, // Single connection for Vercel
+  maxMessages: 1, // Single message per connection
+  rateLimit: 5 // Reduce rate limit for Vercel
 };
 
 // Create transporter
@@ -54,69 +67,97 @@ const retryWithBackoff = async <T>(
 };
 
 export const sendEmail = async (emailData: EmailData): Promise<boolean> => {
-  try {
-    console.log('=== EMAIL SEND ATTEMPT ===');
-    console.log('Environment:', process.env.NODE_ENV);
-    console.log('Attempting to send email to:', emailData.to);
-    console.log('Using email user:', emailConfig.auth.user);
-    console.log('Email pass exists:', !!emailConfig.auth.pass);
-    console.log('Timestamp:', new Date().toISOString());
-    
-    // Verify transporter configuration
-    if (!emailConfig.auth.user || !emailConfig.auth.pass) {
-      console.error('❌ Email configuration missing: user or pass not set');
-      console.error('EMAIL_USER:', process.env.EMAIL_USER ? 'Set' : 'Not set');
-      console.error('EMAIL_PASS:', process.env.EMAIL_PASS ? 'Set' : 'Not set');
-      return false;
-    }
-    
-    const mailOptions = {
-      from: `"InvoiceCraft" <${emailConfig.auth.user}>`,
-      to: emailData.to,
-      subject: emailData.subject,
-      html: emailData.html,
-      attachments: emailData.attachments || []
-    };
-
-    console.log('Mail options prepared:', {
-      from: mailOptions.from,
-      to: mailOptions.to,
-      subject: mailOptions.subject,
-      attachmentsCount: mailOptions.attachments.length
-    });
-
-    // Verify connection first
-    console.log('Verifying SMTP connection...');
-    await transporter.verify();
-    console.log('✅ SMTP connection verified successfully');
-    
-    // Send email directly (no retry for now to simplify debugging)
-    console.log('Sending email...');
-    const info = await transporter.sendMail(mailOptions);
-    console.log('✅ Email sent successfully:', info.messageId);
-    console.log('=== EMAIL SEND SUCCESS ===');
-    return true;
-  } catch (error) {
-    console.error('❌ Email send failed:', error);
-    if (error instanceof Error) {
-      console.error('Error message:', error.message);
-      console.error('Error name:', error.name);
-      console.error('Error stack:', error.stack);
+  const maxRetries = 3;
+  let lastError: Error | null = null;
+  
+  for (let attempt = 1; attempt <= maxRetries; attempt++) {
+    try {
+      console.log(`=== EMAIL SEND ATTEMPT ${attempt}/${maxRetries} ===`);
+      console.log('Environment:', process.env.NODE_ENV);
+      console.log('Attempting to send email to:', emailData.to);
+      console.log('Using email user:', emailConfig.auth.user);
+      console.log('Email pass exists:', !!emailConfig.auth.pass);
+      console.log('Timestamp:', new Date().toISOString());
       
-      // Check for specific Gmail errors
-      if (error.message.includes('Invalid login')) {
-        console.error('❌ Gmail authentication failed - check email credentials');
-      } else if (error.message.includes('Less secure app access')) {
-        console.error('❌ Gmail requires app password - enable 2FA and use app password');
-      } else if (error.message.includes('Connection timeout')) {
-        console.error('❌ Connection timeout - check network or Gmail server status');
-      } else if (error.message.includes('Rate limit exceeded')) {
-        console.error('❌ Rate limit exceeded - too many emails sent');
+      // Verify transporter configuration
+      if (!emailConfig.auth.user || !emailConfig.auth.pass) {
+        console.error('❌ Email configuration missing: user or pass not set');
+        console.error('EMAIL_USER:', process.env.EMAIL_USER ? 'Set' : 'Not set');
+        console.error('EMAIL_PASS:', process.env.EMAIL_PASS ? 'Set' : 'Not set');
+        return false;
+      }
+      
+      // Create a fresh transporter for each attempt (Vercel-specific)
+      const freshTransporter = nodemailer.createTransporter(emailConfig);
+      
+      const mailOptions = {
+        from: `"InvoiceCraft" <${emailConfig.auth.user}>`,
+        to: emailData.to,
+        subject: emailData.subject,
+        html: emailData.html,
+        attachments: emailData.attachments || []
+      };
+
+      console.log('Mail options prepared:', {
+        from: mailOptions.from,
+        to: mailOptions.to,
+        subject: mailOptions.subject,
+        attachmentsCount: mailOptions.attachments.length
+      });
+
+      // Verify connection first
+      console.log('Verifying SMTP connection...');
+      await freshTransporter.verify();
+      console.log('✅ SMTP connection verified successfully');
+      
+      // Send email
+      console.log('Sending email...');
+      const info = await freshTransporter.sendMail(mailOptions);
+      console.log('✅ Email sent successfully:', info.messageId);
+      console.log('=== EMAIL SEND SUCCESS ===');
+      
+      // Close the connection
+      freshTransporter.close();
+      return true;
+      
+    } catch (error) {
+      lastError = error as Error;
+      console.error(`❌ Email send attempt ${attempt} failed:`, error);
+      
+      if (error instanceof Error) {
+        console.error('Error message:', error.message);
+        console.error('Error name:', error.name);
+        
+        // Check for specific Gmail errors
+        if (error.message.includes('Invalid login')) {
+          console.error('❌ Gmail authentication failed - check email credentials');
+          return false; // Don't retry auth errors
+        } else if (error.message.includes('Less secure app access')) {
+          console.error('❌ Gmail requires app password - enable 2FA and use app password');
+          return false; // Don't retry auth errors
+        } else if (error.message.includes('Connection timeout')) {
+          console.error('❌ Connection timeout - will retry');
+        } else if (error.message.includes('Rate limit exceeded')) {
+          console.error('❌ Rate limit exceeded - will retry');
+        } else if (error.message.includes('ECONNRESET')) {
+          console.error('❌ Connection reset - will retry');
+        } else if (error.message.includes('ETIMEDOUT')) {
+          console.error('❌ Connection timed out - will retry');
+        }
+      }
+      
+      // If this is not the last attempt, wait before retrying
+      if (attempt < maxRetries) {
+        const delay = Math.pow(2, attempt) * 1000; // Exponential backoff: 2s, 4s, 8s
+        console.log(`⏳ Waiting ${delay}ms before retry...`);
+        await new Promise(resolve => setTimeout(resolve, delay));
       }
     }
-    console.log('=== EMAIL SEND FAILED ===');
-    return false;
   }
+  
+  console.error('❌ Email send failed after all retries:', lastError);
+  console.log('=== EMAIL SEND FAILED ===');
+  return false;
 };
 
 export const generateInvoiceEmailHTML = (
