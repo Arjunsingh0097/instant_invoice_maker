@@ -176,7 +176,7 @@ export default function InvoiceMaker() {
                 <th style="padding: 8px; text-align: left; font-weight: bold; font-size: 16px; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; width: 50%;">Description</th>
                 <th style="padding: 8px; text-align: right; font-weight: bold; font-size: 16px; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; width: 20%;">Unit Price</th>
                 <th style="padding: 8px; text-align: center; font-weight: bold; font-size: 16px; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; width: 15%;">Quantity</th>
-                <th style="padding: 8px; text-align: right; font-weight: bold; font-size: 16px; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; width: 15%;">Amount USD</th>
+                <th style="padding: 8px; text-align: right; font-weight: bold; font-size: 16px; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; width: 15%;">Amount</th>
               </tr>
             </thead>
             <tbody>
@@ -235,7 +235,7 @@ export default function InvoiceMaker() {
                   : ""
               }
               <div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; border-top: 1px solid #d1d5db; padding-top: 8px; text-rendering: optimizeLegibility;">
-                <span style="color: #111827; font-weight: bold;">TOTAL USD</span>
+                <span style="color: #111827; font-weight: bold;">TOTAL</span>
                 <span style="color: #111827; font-weight: bold;">$${total.toFixed(2)}</span>
                 </div>
               </div>
@@ -536,7 +536,7 @@ export default function InvoiceMaker() {
                   : ""
               }
               <div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; border-top: 1px solid #d1d5db; padding-top: 8px; text-rendering: optimizeLegibility;">
-                <span style="color: #111827; font-weight: bold;">TOTAL USD</span>
+                <span style="color: #111827; font-weight: bold;">TOTAL</span>
                 <span style="color: #111827; font-weight: bold;">$${total.toFixed(2)}</span>
                 </div>
               </div>
@@ -839,7 +839,7 @@ export default function InvoiceMaker() {
                         <th style={{padding: "10px 8px", textAlign: "left", fontWeight: "bold", fontSize: "14px", border: "1px solid #d1d5db", width: "50%"}}>Description</th>
                         <th style={{padding: "10px 8px", textAlign: "right", fontWeight: "bold", fontSize: "14px", border: "1px solid #d1d5db", width: "20%"}}>Unit Price</th>
                         <th style={{padding: "10px 8px", textAlign: "center", fontWeight: "bold", fontSize: "14px", border: "1px solid #d1d5db", width: "15%"}}>Quantity</th>
-                        <th style={{padding: "10px 8px", textAlign: "right", fontWeight: "bold", fontSize: "14px", border: "1px solid #d1d5db", width: "15%"}}>Amount USD</th>
+                        <th style={{padding: "10px 8px", textAlign: "right", fontWeight: "bold", fontSize: "14px", border: "1px solid #d1d5db", width: "15%"}}>Amount</th>
                 </tr>
               </thead>
               <tbody>
@@ -898,7 +898,7 @@ export default function InvoiceMaker() {
                         </div>
                       )}
                       <div style={{fontSize: "14px", marginBottom: "8px", display: "flex", justifyContent: "space-between", borderTop: "1px solid #d1d5db", paddingTop: "8px"}}>
-                        <span style={{color: "#111827", fontWeight: "bold"}}>TOTAL USD</span>
+                        <span style={{color: "#111827", fontWeight: "bold"}}>TOTAL</span>
                         <span style={{color: "#111827", fontWeight: "bold"}}>${total.toFixed(2)}</span>
                       </div>
                     </div>
