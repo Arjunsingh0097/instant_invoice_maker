@@ -371,7 +371,7 @@ export const generateInvoiceEmailHTML = (
             ` : ''}
             ${taxRate > 0 ? `
             <div class="detail-row">
-              <span class="detail-label">TAX (${taxRate}%):</span>
+              <span class="detail-label">TAX (${taxRate}):</span>
               <span class="detail-value">$${taxAmount.toFixed(2)}</span>
             </div>
             ` : ''}
