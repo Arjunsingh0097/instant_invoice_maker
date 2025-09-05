@@ -229,7 +229,7 @@ export default function InvoiceMaker() {
               ${
                 taxRate > 0
                   ? `<div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; text-rendering: optimizeLegibility;">
-                      <span style="color: #111827; font-weight: 600;">Tax (${taxRate})</span>
+                      <span style="color: #111827; font-weight: 600;">Tax (${taxRate}%)</span>
                       <span style="color: #111827; font-weight: bold;">$${taxAmount.toFixed(2)}</span>
                     </div>`
                   : ""
@@ -260,7 +260,7 @@ export default function InvoiceMaker() {
                   ${extraNotes || "Note: The sender will write additional details here"}
                   ${discount > 0 ? `\nDiscount: $${discount.toFixed(2)}` : ""}
                   ${shipping > 0 ? `\nShipping: $${shipping.toFixed(2)}` : ""}
-                  ${taxRate > 0 ? `\nTax Rate: ${taxRate}` : ""}
+                  ${taxRate > 0 ? `\nTax Rate: ${taxRate}%` : ""}
                 </div>
               </div>
             </div>
@@ -530,7 +530,7 @@ export default function InvoiceMaker() {
                 ${
                 taxRate > 0
                   ? `<div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; text-rendering: optimizeLegibility;">
-                      <span style="color: #111827; font-weight: 600;">Tax (${taxRate})</span>
+                      <span style="color: #111827; font-weight: 600;">Tax (${taxRate}%)</span>
                       <span style="color: #111827; font-weight: bold;">$${taxAmount.toFixed(2)}</span>
                     </div>`
                   : ""
@@ -561,7 +561,7 @@ export default function InvoiceMaker() {
                   ${extraNotes || "Note: The sender will write additional details here"}
                   ${discount > 0 ? `\nDiscount: $${discount.toFixed(2)}` : ""}
                   ${shipping > 0 ? `\nShipping: $${shipping.toFixed(2)}` : ""}
-                  ${taxRate > 0 ? `\nTax Rate: ${taxRate}` : ""}
+                  ${taxRate > 0 ? `\nTax Rate: ${taxRate}%` : ""}
                 </div>
               </div>
             </div>
@@ -893,7 +893,7 @@ export default function InvoiceMaker() {
                       )}
                       {taxRate > 0 && (
                         <div style={{fontSize: "14px", marginBottom: "8px", display: "flex", justifyContent: "space-between"}}>
-                          <span style={{color: "#111827", fontWeight: "600"}}>Tax ({taxRate})</span>
+                          <span style={{color: "#111827", fontWeight: "600"}}>Tax ({taxRate}%)</span>
                           <span style={{color: "#111827", fontWeight: "bold"}}>${taxAmount.toFixed(2)}</span>
                         </div>
                       )}
