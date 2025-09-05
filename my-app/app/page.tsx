@@ -107,7 +107,7 @@ export default function InvoiceMaker() {
       invoiceDiv.style.maxWidth = "800px";
       invoiceDiv.style.minWidth = "800px";
       invoiceDiv.style.backgroundColor = "white";
-      invoiceDiv.style.padding = "20px";
+      invoiceDiv.style.padding = "0";
       invoiceDiv.style.fontFamily = "Arial, sans-serif";
       invoiceDiv.style.color = "#333";
       invoiceDiv.style.fontSize = "16px";
@@ -117,10 +117,10 @@ export default function InvoiceMaker() {
       invoiceDiv.style.boxSizing = "border-box";
 
       invoiceDiv.innerHTML = `
-        <div style="margin: 0; background: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1f2937; padding: 0; width: 100%; height: 100vh;">
-          <div style="width: 100%; background: #fff; overflow: hidden;">
-            <!-- Blue line at top -->
-            <div style="height: 4px; background: #2563eb; width: 100%;"></div>
+        <div style="margin: 0; padding: 0; background: #fff; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1f2937; width: 100%; height: 100vh; box-sizing: border-box; border: none; outline: none;">
+          <!-- Blue line at top -->
+          <div style="height: 4px; background: #2563eb; width: 100%; margin: 0; padding: 0;"></div>
+          <div style="width: 100%; background: #fff; overflow: hidden; margin: 0; padding: 0;">
             <!-- Top header -->
             <div style="padding: 22px 28px; display: flex; align-items: center; justify-content: space-between;">
               <div style="font-size: 28px; font-weight: 700; color: #374151;">${invoiceType === "Invoice" ? "Tax " : ""}${invoiceType}</div>
@@ -128,7 +128,7 @@ export default function InvoiceMaker() {
                 ${
                   logo
                     ? `<img src="${logo}" style="width: 120px; height: 120px; object-fit: contain;" />`
-                    : `<div style="width: 120px; height: 120px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; border-radius: 8px;"><span style="font-size: 14px; color: #9ca3af;">Logo</span></div>`
+                                         : `<div style="width: 120px; height: 120px; background: #ffffff; display: flex; align-items: center; justify-content: center; border-radius: 8px;"><span style="font-size: 14px; color: #ffffff;">Logo</span></div>`
                 }
               </div>
             </div>
@@ -396,8 +396,8 @@ export default function InvoiceMaker() {
                         {logo ? (
                           <img src={logo} alt="Company Logo" style={{width: "120px", height: "120px", objectFit: "contain"}} />
                         ) : (
-                          <div style={{width: "120px", height: "120px", background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "8px"}}>
-                            <span style={{fontSize: "14px", color: "#9ca3af"}}>Logo</span>
+                                                     <div style={{width: "120px", height: "120px", background: "#ffffff", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "8px"}}>
+                            <span style={{fontSize: "14px", color: "#ffffff"}}>Logo</span>
                           </div>
                         )}
                       </div>
@@ -550,8 +550,7 @@ export default function InvoiceMaker() {
             <h1 className="text-5xl font-bold gradient-text">Invoicemate</h1>
           </div>
           <p className="text-white/60 text-lg max-w-2xl mx-auto">
-            Create professional invoices with our modern, intuitive interface.
-            Beautiful design meets powerful functionality.
+            Beautiful design meets powerful functionality. Generate and download sleek PDF invoices instantly — no cost, no hassle.
           </p>
         </div>
 
