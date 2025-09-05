@@ -62,7 +62,7 @@ export const sendEmail = async (emailData: EmailData): Promise<boolean> => {
       const freshTransporter = nodemailer.createTransport(emailConfig);
       
       const mailOptions = {
-        from: `"InvoiceCraft" <${emailConfig.auth.user}>`,
+        from: `"Invoicemate" <${emailConfig.auth.user}>`,
         to: emailData.to,
         subject: emailData.subject,
         html: emailData.html,

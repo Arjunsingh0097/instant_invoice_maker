@@ -11,7 +11,7 @@ export async function GET(request: NextRequest) {
     // Test basic email sending
     const testEmailSent = await sendEmail({
       to: 'arjunkondal00.7@gmail.com', // Send to yourself for testing
-      subject: 'Test Email from InvoiceCraft Debug',
+      subject: 'Test Email from Invoicemate Debug',
       html: `
         <h1>Test Email</h1>
         <p>This is a test email to verify email functionality.</p>

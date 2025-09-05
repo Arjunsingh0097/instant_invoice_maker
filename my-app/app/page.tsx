@@ -554,7 +554,7 @@ export default function InvoiceMaker() {
                 <div style="font-size: 12px; margin-bottom: 4px; color: #666; text-rendering: optimizeLegibility;">To:</div>
                 <div style="font-size: 12px; color: #333; line-height: 1.3; text-rendering: optimizeLegibility; white-space: pre-line;">
                   ${toDetails || "Client Name\nClient Address\nCity, State ZIP\nCountry"}
-                </div>
+          </div>
               </div>
               <div style="flex: 1; text-align: right;">
                 <div style="font-size: 12px; color: #333; text-rendering: optimizeLegibility; white-space: pre-line;">
@@ -961,7 +961,7 @@ export default function InvoiceMaker() {
             <div className="w-16 h-16 glass rounded-2xl flex items-center justify-center glow-animation">
               <Sparkles className="h-8 w-8 text-white" />
             </div>
-            <h1 className="text-5xl font-bold gradient-text">InvoiceCraft</h1>
+            <h1 className="text-5xl font-bold gradient-text">Invoicemate</h1>
           </div>
           <p className="text-white/60 text-lg max-w-2xl mx-auto">
             Create professional invoices with our modern, intuitive interface.

@@ -13,7 +13,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "InvoiceCraft - Professional Invoice Maker",
+  title: "Invoicemate - Professional Invoice Maker",
   description: "Create professional invoices with our modern, intuitive interface. Beautiful design meets powerful functionality.",
   icons: {
     icon: [
