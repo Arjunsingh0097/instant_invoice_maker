@@ -12,8 +12,6 @@ import {
   Building,
   Sparkles,
   Zap,
-  Mail,
-  Loader2,
   X,
 } from "lucide-react";
 import { format } from "date-fns";
@@ -43,19 +41,8 @@ export default function InvoiceMaker() {
   const [logo, setLogo] = useState<string | null>(null);
   const [taxRate, setTaxRate] = useState(0);
   const [discount, setDiscount] = useState(0);
-  const [shipping, setShipping] = useState(0);
-  const [clientEmail, setClientEmail] = useState("");
-  const [isEmailSending, setIsEmailSending] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
-  const [items, setItems] = useState<InvoiceItem[]>([
-    {
-      id: "1",
-      name: "Sample Item",
-      price: 100,
-      quantity: 1,
-      amount: 100,
-    },
-  ]);
+  const [items, setItems] = useState<InvoiceItem[]>([]);
 
   const calculateItemAmount = (price: number, quantity: number) => {
     return price * quantity;
@@ -95,14 +82,12 @@ export default function InvoiceMaker() {
   };
 
   const removeItem = (id: string) => {
-    if (items.length > 1) {
-      setItems((prevItems) => prevItems.filter((item) => item.id !== id));
-    }
+    setItems((prevItems) => prevItems.filter((item) => item.id !== id));
   };
 
   const subtotal = items.reduce((sum, item) => sum + item.amount, 0);
   const taxAmount = (subtotal - discount) * (taxRate / 100);
-  const total = subtotal - discount + taxAmount + shipping;
+  const total = subtotal - discount + taxAmount;
 
   const handleDownloadInvoice = async () => {
     try {
@@ -126,162 +111,139 @@ export default function InvoiceMaker() {
       invoiceDiv.style.boxSizing = "border-box";
 
       invoiceDiv.innerHTML = `
-        <div style="font-family: Arial, sans-serif; width: 100%; max-width: 100%; margin: 0; padding: 10px; background: white; color: #333; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; box-sizing: border-box;">
-          <!-- Header Section - DRAFT INVOICE Layout -->
-          <div style="position: relative; margin-bottom: 30px;">
-            <!-- Top Row - Logo only -->
-            <div style="display: flex; justify-content: flex-end; align-items: flex-start; margin-bottom: 20px;">
-              <!-- Logo -->
-              <div>
-                  ${
-                    logo
-                     ? `<img src="${logo}" style="width: 100px; height: 100px; object-fit: contain; border-radius: 50%; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />`
-                      : ""
-                  }
+        <div style="margin: 0; background: #f6f7fb; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #1f2937; padding: 28px;">
+          <div style="max-width: 860px; margin: 0 auto; background: #fff; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden;">
+            <!-- Blue line at top -->
+            <div style="height: 4px; background: #2563eb; width: 100%;"></div>
+            <!-- Top header -->
+            <div style="padding: 22px 28px; display: flex; align-items: center; justify-content: space-between;">
+              <div style="font-size: 28px; font-weight: 700; color: #374151;">Tax ${invoiceType}</div>
+              <div style="display: flex; align-items: center; gap: 12px;">
+                ${
+                  logo
+                    ? `<img src="${logo}" style="width: 120px; height: 120px; object-fit: contain;" />`
+                    : `<div style="width: 120px; height: 120px; background: #f3f4f6; display: flex; align-items: center; justify-content: center; border-radius: 8px;"><span style="font-size: 14px; color: #9ca3af;">Logo</span></div>`
+                }
               </div>
-          </div>
-
-            <!-- Bottom Row - Company Details and Invoice Details -->
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-              <!-- Left Side - Company Details -->
-            <div style="flex: 1;">
-                <div style="font-size: 32px; font-weight: bold; margin-bottom: 8px; color: #000; letter-spacing: 1px; text-rendering: optimizeLegibility;">
-                  ${invoiceType.toUpperCase()} 
-              </div>
-                <div style="font-size: 18px; font-weight: 500; color: #000; margin-bottom: 8px; text-rendering: optimizeLegibility;">
-                  ${fromDetails.split("\n")[0] || "Your Company Name"}
-              </div>
-                <div style="font-size: 12px; color: #333; line-height: 1.3; text-rendering: optimizeLegibility; white-space: pre-line;">
-                  ${fromDetails || "Your Company Name\nYour Company Address\nCity, State ZIP\nCountry"}
-            </div>
-              </div>
-              
-              <!-- Right Side - Invoice Details -->
-              <div style="text-align: right; flex: 1;">
-                <div style="text-align: left; margin-top: 10px;">
-                  <div style="font-size: 12px; margin-bottom: 4px; color: #666; text-rendering: optimizeLegibility;">Invoice Date</div>
-                  <div style="font-size: 14px; font-weight: 600; color: #000; margin-bottom: 20px; text-rendering: optimizeLegibility;">${new Date(invoiceDate).toLocaleDateString()}</div>
-                  <div style="font-size: 12px; margin-bottom: 4px; color: #666; text-rendering: optimizeLegibility;">Invoice Number</div>
-                  <div style="font-size: 14px; font-weight: 600; color: #000; text-rendering: optimizeLegibility;">${invoiceNumber}</div>
-              </div>
-            </div>
             </div>
             
-          </div>
-
-          <!-- Items Table -->
-          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; border: 1px solid #d1d5db; table-layout: fixed;">
-            <thead>
-              <tr style="background: #f8f9fa; color: #000;">
-                <th style="padding: 8px; text-align: left; font-weight: bold; font-size: 16px; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; width: 50%;">Description</th>
-                <th style="padding: 8px; text-align: right; font-weight: bold; font-size: 16px; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; width: 20%;">Unit Price</th>
-                <th style="padding: 8px; text-align: center; font-weight: bold; font-size: 16px; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; width: 15%;">Quantity</th>
-                <th style="padding: 8px; text-align: right; font-weight: bold; font-size: 16px; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; width: 15%;">Amount</th>
-              </tr>
-            </thead>
-            <tbody>
+            <!-- Parties -->
+            <div style="padding: 0 28px 10px 28px; display: flex; gap: 24px;">
+              <div style="flex: 1;">
+                <div style="font-size: 11px; color: #9aa3b2; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px;">From</div>
+                <div style="font-weight: 700;">${fromDetails.split("\n")[0] || "Your Company Name"}</div>
+                <div style="font-size: 14px; color: #6b7280; line-height: 1.4; white-space: pre-line;">${fromDetails || "Your Company Name\nYour Company Address\nCity, State ZIP\nCountry"}</div>
+              </div>
+              
+              <div style="flex: 1;">
+                <div style="font-size: 11px; color: #9aa3b2; text-transform: uppercase; letter-spacing: .08em; margin-bottom: 8px;">For</div>
+                <div style="font-weight: 700;">${toDetails.split("\n")[0] || "Client Name"}</div>
+                <div style="font-size: 14px; color: #6b7280; line-height: 1.4; white-space: pre-line;">${toDetails ? toDetails.split("\n").slice(1).join("\n") : "Client Address\nCity, State ZIP\nCountry"}</div>
+              </div>
+            </div>
+            
+            <!-- Horizontal line under parties -->
+            <div style="height: 1px; background: #000; margin: 0 28px 18px 28px;"></div>
+            
+            <!-- Invoice meta -->
+            <div style="padding: 6px 28px 18px 28px; display: grid; grid-template-columns: 180px 1fr; row-gap: 6px; max-width: 520px;">
+              <div style="color: #6b7280;">Number</div><div style="font-weight: 600;">${invoiceNumber}</div>
+              <div style="color: #6b7280;">Date</div><div>${new Date(invoiceDate).toLocaleDateString()}</div>
+              <div style="color: #6b7280;">Terms</div><div>${terms}</div>
+              <div style="color: #6b7280;">Due</div><div>${(() => {
+                const invoiceDateObj = new Date(invoiceDate);
+                const daysToAdd = terms === "Due On Receipt" ? 0 : terms === "Net 15" ? 15 : terms === "Net 30" ? 30 : 60;
+                const dueDate = new Date(invoiceDateObj.getTime() + daysToAdd * 24 * 60 * 60 * 1000);
+                return dueDate.toLocaleDateString();
+              })()}</div>
+            </div>
+            
+            <!-- Table header -->
+            <div style="margin: 8px 28px 0 28px; background: #2563eb; color: #fff; padding: 12px 28px; font-weight: 700; display: flex;">
+              <div style="flex: 1;">Description</div>
+              <div style="width: 140px; text-align: right;">Price</div>
+              <div style="width: 100px; text-align: right;">Qty</div>
+              <div style="width: 140px; text-align: right;">Amount</div>
+            </div>
+            
+            <!-- Table rows -->
+            <div style="padding: 0 36px;">
               ${items
                 .map((item) => {
                   return `
-                  <tr style="border-bottom: 1px solid #e5e7eb; background: white;">
-                    <td style="padding: 8px; font-size: 16px; color: #111827; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; vertical-align: top;">${
-                      item.name || ""
-                    }</td>
-                    <td style="padding: 8px; text-align: right; font-size: 16px; color: #111827; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; vertical-align: top;">$${item.price.toFixed(
-                      2
-                    )}</td>
-                    <td style="padding: 8px; text-align: center; font-size: 16px; color: #111827; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; vertical-align: top;">${
-                      item.quantity
-                    }</td>
-                    <td style="padding: 8px; text-align: right; font-size: 16px; font-weight: bold; color: #111827; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; vertical-align: top;">$${item.amount.toFixed(
-                      2
-                    )}</td>
-                  </tr>
+                  <div style="display: flex; padding: 14px 0;">
+                    <div style="flex: 1;">
+                      <div style="font-weight: 700;">${item.name || ""}</div>
+                    </div>
+                    <div style="width: 140px; text-align: right;">$${item.price.toFixed(2)}</div>
+                    <div style="width: 100px; text-align: right;">${item.quantity}</div>
+                    <div style="width: 140px; text-align: right; font-weight: 600;">$${item.amount.toFixed(2)}</div>
+                  </div>
                 `;
                 })
                 .join("")}
-            </tbody>
-          </table>
-
-          <!-- Summary Section -->
-          <div style="display: flex; justify-content: flex-end; align-items: flex-end; margin-bottom: 30px;">
-            <div style="text-align: right; min-width: 200px;">
-              <div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; text-rendering: optimizeLegibility;">
-                <span style="color: #111827; font-weight: 600;">Subtotal</span>
-                <span style="color: #111827; font-weight: bold;">$${subtotal.toFixed(2)}</span>
-              </div>
-              ${
-                discount > 0
-                  ? `<div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; text-rendering: optimizeLegibility;">
-                      <span style="color: #111827; font-weight: 600;">Discount</span>
-                      <span style="color: #111827; font-weight: bold;">-$${discount.toFixed(2)}</span>
-                    </div>`
-                  : ""
-              }
-              ${
-                shipping > 0
-                  ? `<div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; text-rendering: optimizeLegibility;">
-                      <span style="color: #111827; font-weight: 600;">Shipping</span>
-                      <span style="color: #111827; font-weight: bold;">$${shipping.toFixed(2)}</span>
-                    </div>`
-                  : ""
-              }
-              ${
-                taxRate > 0
-                  ? `<div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; text-rendering: optimizeLegibility;">
-                      <span style="color: #111827; font-weight: 600;">Tax (${taxRate}%)</span>
-                      <span style="color: #111827; font-weight: bold;">$${taxAmount.toFixed(2)}</span>
-                    </div>`
-                  : ""
-              }
-              <div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; border-top: 1px solid #d1d5db; padding-top: 8px; text-rendering: optimizeLegibility;">
-                <span style="color: #111827; font-weight: bold;">TOTAL</span>
-                <span style="color: #111827; font-weight: bold;">$${total.toFixed(2)}</span>
-                </div>
-              </div>
-          </div>
-
-          <!-- Payment Advice Section -->
-          <div style="border-top: 2px dashed #ccc; padding-top: 20px; margin-top: 20px;">
-            <div style="display: flex; align-items: center; margin-bottom: 15px;">
-              <div style="font-size: 16px; font-weight: bold; color: #000; margin-right: 10px; text-rendering: optimizeLegibility;">PAYMENT ADVICE</div>
-              <div style="font-size: 20px; color: #ccc;">✂️</div>
             </div>
             
-            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-              <div style="flex: 1;">
-                <div style="font-size: 12px; margin-bottom: 4px; color: #666; text-rendering: optimizeLegibility;">To:</div>
-                <div style="font-size: 12px; color: #333; line-height: 1.3; text-rendering: optimizeLegibility; white-space: pre-line;">
-                  ${toDetails || "Client Name\nClient Address\nCity, State ZIP\nCountry"}
+            <!-- Totals -->
+            <div style="padding: 8px 36px 6px 36px;">
+              <div style="height: 1px; background: #2563eb; margin-bottom: 8px;"></div>
+              <div style="display: flex; justify-content: flex-end;">
+                <div style="width: 420px;">
+                  <div style="display: flex; padding: 4px 0; justify-content: flex-end;">
+                    <div style="width: 280px; display: flex; justify-content: space-between;">
+                      <div style="color: #6b7280;">Subtotal</div>
+                      <div style="font-weight: 600;">$${subtotal.toFixed(2)}</div>
+                    </div>
+                  </div>
+                  ${
+                    discount > 0
+                      ? `<div style="display: flex; padding: 4px 0; justify-content: flex-end;">
+                          <div style="width: 280px; display: flex; justify-content: space-between;">
+                            <div style="color: #6b7280;">Discount</div>
+                            <div style="font-weight: 600;">-$${discount.toFixed(2)}</div>
+                          </div>
+                        </div>`
+                      : ""
+                  }
+                  ${
+                    taxRate > 0
+                      ? `<div style="display: flex; padding: 4px 0; justify-content: flex-end;">
+                          <div style="width: 280px; display: flex; justify-content: space-between;">
+                            <div style="color: #6b7280;">Tax (${taxRate}%)</div>
+                            <div style="font-weight: 600;">$${taxAmount.toFixed(2)}</div>
+                          </div>
+                        </div>`
+                      : ""
+                  }
                 </div>
               </div>
-              <div style="flex: 1; text-align: right;">
-                <div style="font-size: 12px; color: #333; text-rendering: optimizeLegibility; white-space: pre-line;">
-                  ${extraNotes || "Note: The sender will write additional details here"}
-                  ${discount > 0 ? `\nDiscount: $${discount.toFixed(2)}` : ""}
-                  ${shipping > 0 ? `\nShipping: $${shipping.toFixed(2)}` : ""}
-                  ${taxRate > 0 ? `\nTax Rate: ${taxRate}%` : ""}
+              <div style="height: 1px; background: #2563eb; margin: 8px 0;"></div>
+              <div style="display: flex; justify-content: flex-end;">
+                <div style="width: 420px;">
+                  <div style="display: flex; padding: 4px 0; font-weight: 800; justify-content: flex-end;">
+                    <div style="width: 280px; display: flex; justify-content: space-between;">
+                      <div>Total</div>
+                      <div>$${total.toFixed(2)}</div>
+                    </div>
+                  </div>
+                  <div style="display: flex; padding: 4px 0; font-weight: 900; justify-content: flex-end;">
+                    <div style="width: 280px; display: flex; justify-content: space-between;">
+                      <div>Balance Due</div>
+                      <div style="font-size: 18px;">$${total.toFixed(2)}</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
             
-            <div style="margin-bottom: 20px;">
-              <div style="font-size: 12px; margin-bottom: 4px; color: #666; text-rendering: optimizeLegibility;">
-                Amount Enclosed: <span style="font-weight: bold; color: #000;">$${total.toFixed(2)}</span>
+            <!-- Notes -->
+            <div style="padding: 18px 28px 28px 28px;">
+              <div style="height: 1px; background: #000; margin-bottom: 12px;"></div>
+              <div style="font-weight: 700; margin-bottom: 6px;">Notes</div>
+              <div style="color: #4b5563; font-size: 14px; line-height: 1.7;">
+                ${extraNotes || "Thank you for your business!"}
               </div>
-              <div style="border-bottom: 1px solid #333; height: 20px; margin-bottom: 4px;"></div>
-              <div style="font-size: 10px; color: #666; text-rendering: optimizeLegibility;">Enter the amount you are paying above</div>
             </div>
-            
-            <div style="font-size: 10px; color: #666; text-align: center; text-rendering: optimizeLegibility;">
-              Registered Office: ${fromDetails || "123 Progress Lane, Seattle, Washington, 98101, United States"}
-            </div>
-          </div>
-
-          <!-- Footer -->
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 30px; padding-top: 10px; border-top: 1px solid #eee; font-size: 12px; color: #666;">
-            
-           
           </div>
         </div>
       `;
@@ -380,357 +342,6 @@ export default function InvoiceMaker() {
     }
   };
 
-  const handleSendEmail = async () => {
-    if (!clientEmail) {
-      alert("Please enter the client's email address");
-      return;
-    }
-
-    if (!clientEmail.includes("@")) {
-      alert("Please enter a valid email address");
-      return;
-    }
-
-    if (!fromDetails.trim()) {
-      alert("Please enter your company details");
-      return;
-    }
-
-    if (!toDetails.trim()) {
-      alert("Please enter the client's details");
-      return;
-    }
-
-    setIsEmailSending(true);
-
-    try {
-      // Show progress to user
-      console.log("🚀 Starting ultra-fast email generation...");
-
-      // Generate PDF first with optimized settings
-      const invoiceDiv = document.createElement("div");
-      invoiceDiv.style.position = "absolute";
-      invoiceDiv.style.left = "-9999px";
-      invoiceDiv.style.top = "0";
-      // Force consistent PDF settings for all devices - desktop layout
-      invoiceDiv.style.width = "800px";
-      invoiceDiv.style.maxWidth = "800px";
-      invoiceDiv.style.minWidth = "800px";
-      invoiceDiv.style.backgroundColor = "white";
-      invoiceDiv.style.padding = "20px";
-      invoiceDiv.style.fontFamily = "Arial, sans-serif";
-      invoiceDiv.style.color = "#333";
-      invoiceDiv.style.fontSize = "16px";
-      invoiceDiv.style.lineHeight = "1.4";
-      // Force desktop layout
-      invoiceDiv.style.display = "block";
-      invoiceDiv.style.boxSizing = "border-box";
-
-      invoiceDiv.innerHTML = `
-        <div style="font-family: Arial, sans-serif; width: 100%; max-width: 100%; margin: 0; padding: 10px; background: white; color: #333; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; box-sizing: border-box;">
-          <!-- Header Section - DRAFT INVOICE Layout -->
-          <div style="position: relative; margin-bottom: 30px;">
-            <!-- Top Row - Logo only -->
-            <div style="display: flex; justify-content: flex-end; align-items: flex-start; margin-bottom: 20px;">
-              <!-- Logo -->
-              <div>
-                ${
-                  logo
-                    ? `<img src="${logo}" style="width: 100px; height: 100px; object-fit: contain; border-radius: 50%; image-rendering: -webkit-optimize-contrast; image-rendering: crisp-edges;" />`
-                    : ""
-                }
-              </div>
-            </div>
-            
-            <!-- Bottom Row - Company Details and Invoice Details -->
-            <div style="display: flex; justify-content: space-between; align-items: flex-start;">
-              <!-- Left Side - Company Details -->
-              <div style="flex: 1;">
-                <div style="font-size: 32px; font-weight: bold; margin-bottom: 8px; color: #000; letter-spacing: 1px; text-rendering: optimizeLegibility;">
-                  ${invoiceType.toUpperCase()} 
-                </div>
-                <div style="font-size: 18px; font-weight: 500; color: #000; margin-bottom: 8px; text-rendering: optimizeLegibility;">
-                  ${fromDetails.split("\n")[0] || "Your Company Name"}
-              </div>
-                <div style="font-size: 12px; color: #333; line-height: 1.3; text-rendering: optimizeLegibility; white-space: pre-line;">
-                  ${fromDetails || "Your Company Name\nYour Company Address\nCity, State ZIP\nCountry"}
-                </div>
-              </div>
-              
-              <!-- Right Side - Invoice Details -->
-              <div style="text-align: right; flex: 1;">
-                <div style="text-align: left; margin-top: 10px;">
-                  <div style="font-size: 12px; margin-bottom: 4px; color: #666; text-rendering: optimizeLegibility;">Invoice Date</div>
-                  <div style="font-size: 14px; font-weight: 600; color: #000; margin-bottom: 20px; text-rendering: optimizeLegibility;">${new Date(invoiceDate).toLocaleDateString()}</div>
-                  <div style="font-size: 12px; margin-bottom: 4px; color: #666; text-rendering: optimizeLegibility;">Invoice Number</div>
-                  <div style="font-size: 14px; font-weight: 600; color: #000; text-rendering: optimizeLegibility;">${invoiceNumber}</div>
-                </div>
-              </div>
-            </div>
-            
-          </div>
-            
-          <!-- Items Table -->
-          <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; border: 1px solid #d1d5db; table-layout: fixed;">
-              <thead>
-              <tr style="background: #f8f9fa; color: #000;">
-                <th style="padding: 10px 8px; text-align: left; font-weight: bold; font-size: 14px; border: 1px solid #d1d5db; width: 50%;">Description</th>
-                <th style="padding: 10px 8px; text-align: right; font-weight: bold; font-size: 14px; border: 1px solid #d1d5db; width: 20%;">Price</th>
-                <th style="padding: 10px 8px; text-align: center; font-weight: bold; font-size: 14px; border: 1px solid #d1d5db; width: 15%;">Quantity</th>
-                <th style="padding: 10px 8px; text-align: right; font-weight: bold; font-size: 14px; border: 1px solid #d1d5db; width: 15%;">Total</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${items
-                  .map((item) => {
-                    return `
-                    <tr style="background: white;">
-                      <td style="padding: 8px; font-size: 14px; color: #111827; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; vertical-align: top;">${
-                        item.name || "No name"
-                      }</td>
-                      <td style="padding: 8px; text-align: right; font-size: 14px; color: #111827; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; vertical-align: top;">$${item.price.toFixed(
-                        2
-                      )}</td>
-                      <td style="padding: 8px; text-align: center; font-size: 14px; color: #111827; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; vertical-align: top;">${
-                        item.quantity
-                      }</td>
-                      <td style="padding: 8px; text-align: right; font-size: 14px; font-weight: bold; color: #111827; text-rendering: optimizeLegibility; border: 1px solid #d1d5db; vertical-align: top;">$${item.amount.toFixed(
-                        2
-                      )}</td>
-                    </tr>
-                  `;
-                  })
-                  .join("")}
-              </tbody>
-            </table>
-            
-          <!-- Summary Section -->
-          <div style="display: flex; justify-content: flex-end; align-items: flex-end; margin-bottom: 30px;">
-            <div style="text-align: right; min-width: 200px;">
-              <div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; text-rendering: optimizeLegibility;">
-                <span style="color: #111827; font-weight: 600;">Subtotal</span>
-                <span style="color: #111827; font-weight: bold;">$${subtotal.toFixed(2)}</span>
-                </div>
-                ${
-                  discount > 0
-                  ? `<div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; text-rendering: optimizeLegibility;">
-                      <span style="color: #111827; font-weight: 600;">Discount</span>
-                      <span style="color: #111827; font-weight: bold;">-$${discount.toFixed(2)}</span>
-                    </div>`
-                    : ""
-                }
-                ${
-                shipping > 0
-                  ? `<div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; text-rendering: optimizeLegibility;">
-                      <span style="color: #111827; font-weight: 600;">Shipping</span>
-                      <span style="color: #111827; font-weight: bold;">$${shipping.toFixed(2)}</span>
-                    </div>`
-                    : ""
-                }
-                ${
-                taxRate > 0
-                  ? `<div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; text-rendering: optimizeLegibility;">
-                      <span style="color: #111827; font-weight: 600;">Tax (${taxRate}%)</span>
-                      <span style="color: #111827; font-weight: bold;">$${taxAmount.toFixed(2)}</span>
-                    </div>`
-                  : ""
-              }
-              <div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; border-top: 1px solid #d1d5db; padding-top: 8px; text-rendering: optimizeLegibility;">
-                <span style="color: #111827; font-weight: bold;">TOTAL</span>
-                <span style="color: #111827; font-weight: bold;">$${total.toFixed(2)}</span>
-                </div>
-              </div>
-            </div>
-            
-          <!-- Payment Advice Section -->
-          <div style="border-top: 2px dashed #ccc; padding-top: 20px; margin-top: 20px;">
-            <div style="display: flex; align-items: center; margin-bottom: 15px;">
-              <div style="font-size: 16px; font-weight: bold; color: #000; margin-right: 10px; text-rendering: optimizeLegibility;">PAYMENT ADVICE</div>
-              <div style="font-size: 20px; color: #ccc;">✂️</div>
-            </div>
-            
-            <div style="display: flex; justify-content: space-between; margin-bottom: 20px;">
-              <div style="flex: 1;">
-                <div style="font-size: 12px; margin-bottom: 4px; color: #666; text-rendering: optimizeLegibility;">To:</div>
-                <div style="font-size: 12px; color: #333; line-height: 1.3; text-rendering: optimizeLegibility; white-space: pre-line;">
-                  ${toDetails || "Client Name\nClient Address\nCity, State ZIP\nCountry"}
-          </div>
-              </div>
-              <div style="flex: 1; text-align: right;">
-                <div style="font-size: 12px; color: #333; text-rendering: optimizeLegibility; white-space: pre-line;">
-                  ${extraNotes || "Note: The sender will write additional details here"}
-                  ${discount > 0 ? `\nDiscount: $${discount.toFixed(2)}` : ""}
-                  ${shipping > 0 ? `\nShipping: $${shipping.toFixed(2)}` : ""}
-                  ${taxRate > 0 ? `\nTax Rate: ${taxRate}%` : ""}
-                </div>
-              </div>
-            </div>
-            
-            <div style="margin-bottom: 20px;">
-              <div style="font-size: 12px; margin-bottom: 4px; color: #666; text-rendering: optimizeLegibility;">
-                Amount Enclosed: <span style="font-weight: bold; color: #000;">$${total.toFixed(2)}</span>
-              </div>
-              <div style="border-bottom: 1px solid #333; height: 20px; margin-bottom: 4px;"></div>
-              <div style="font-size: 10px; color: #666; text-rendering: optimizeLegibility;">Enter the amount you are paying above</div>
-            </div>
-            
-            <div style="font-size: 10px; color: #666; text-align: center; text-rendering: optimizeLegibility;">
-              Registered Office: ${fromDetails || "123 Progress Lane, Seattle, Washington, 98101, United States"}
-            </div>
-          </div>
-              </div>
-            </div>
-            
-          <!-- Footer -->
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 30px; padding-top: 10px; border-top: 1px solid #eee; font-size: 12px; color: #666;">
-         
-          </div>
-        </div>
-      `;
-
-      document.body.appendChild(invoiceDiv);
-
-      // Convert to canvas and then to PDF with balanced quality settings
-      const canvas = await html2canvas(invoiceDiv, {
-        scale: 2, // Higher resolution for better quality
-        useCORS: true,
-        allowTaint: true,
-        backgroundColor: "#ffffff",
-        logging: false,
-        removeContainer: true,
-        imageTimeout: 10000, // Longer timeout for mobile
-        foreignObjectRendering: false, // Disable for compatibility
-        width: invoiceDiv.scrollWidth, // Use actual content width
-        height: invoiceDiv.scrollHeight, // Use actual content height
-        ignoreElements: (element) => {
-          // Skip non-essential elements
-          return element.tagName === "SCRIPT" || element.tagName === "STYLE";
-        },
-        onclone: (clonedDoc) => {
-          // Force desktop viewport and layout
-          const viewport = clonedDoc.querySelector('meta[name="viewport"]');
-          if (viewport) {
-            viewport.setAttribute('content', 'width=800, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
-    } else {
-            const meta = clonedDoc.createElement('meta');
-            meta.setAttribute('name', 'viewport');
-            meta.setAttribute('content', 'width=800, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');
-            clonedDoc.head.appendChild(meta);
-          }
-          
-          // Minimize body margins and padding
-          const body = clonedDoc.body;
-          if (body) {
-            body.style.margin = "0";
-            body.style.padding = "0";
-            body.style.overflow = "visible";
-          }
-          
-          // Force desktop layout on all elements
-          const allElements = clonedDoc.querySelectorAll("*");
-          allElements.forEach((el) => {
-            if (el instanceof HTMLElement) {
-              el.style.transform = "none";
-              el.style.animation = "none";
-              el.style.transition = "none";
-              el.style.filter = "none";
-              el.style.maxWidth = "none";
-              el.style.minWidth = "none";
-              el.style.width = el.style.width || "auto";
-            }
-          });
-        },
-      });
-
-      document.body.removeChild(invoiceDiv);
-
-      // Debug canvas
-      console.log("Canvas dimensions:", canvas.width, "x", canvas.height);
-      console.log("Canvas has content:", canvas.width > 0 && canvas.height > 0);
-
-      const imgData = canvas.toDataURL("image/jpeg", 0.9); // Use JPEG with high quality for reliability
-      console.log("Image data length:", imgData.length);
-      const pdf = new jsPDF("p", "mm", "a4"); // Keep A4 but optimize processing
-      const pdfWidth = pdf.internal.pageSize.getWidth();
-      const pdfHeight = pdf.internal.pageSize.getHeight();
-      const imgWidth = pdfWidth - 20;
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
-
-      // Always try single page first - scale down if needed
-      const maxSinglePageHeight = pdfHeight - 40; // Leave more margin
-      
-      if (imgHeight <= maxSinglePageHeight) {
-        // Fits on single page - add image at top
-        pdf.addImage(imgData, "JPEG", 10, 10, imgWidth, imgHeight);
-      } else {
-        // Scale down to fit on single page
-        const scaleFactor = maxSinglePageHeight / imgHeight;
-        const scaledWidth = imgWidth * scaleFactor;
-        const scaledHeight = imgHeight * scaleFactor;
-        const xPosition = (pdfWidth - scaledWidth) / 2;
-        
-        pdf.addImage(imgData, "JPEG", xPosition, 10, scaledWidth, scaledHeight);
-      }
-
-      // Convert PDF to base64
-      console.log("⚡ Converting PDF to base64...");
-      const pdfBase64 = pdf.output("datauristring").split(",")[1];
-
-      console.log("📧 Sending email with lightning speed...");
-      console.log("Email data:", {
-        to: clientEmail,
-        invoiceNumber,
-        invoiceType,
-        fromDetails: fromDetails.trim(),
-        toDetails: toDetails.trim(),
-        total,
-        invoiceDate,
-        items: items.length,
-        taxRate,
-        discount,
-        shipping,
-        extraNotes,
-        logo: !!logo
-      });
-      
-      // Send email with PDF attachment
-      const response = await fetch("/api/send-email", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          to: clientEmail,
-          invoiceNumber,
-          invoiceType,
-          fromDetails: fromDetails.trim(),
-          toDetails: toDetails.trim(),
-          total,
-          invoiceDate,
-          items,
-          taxRate,
-          discount,
-          shipping,
-          extraNotes,
-          logo,
-          pdfAttachment: pdfBase64,
-        }),
-      });
-
-      const result = await response.json();
-
-      if (response.ok) {
-        alert("Invoice sent successfully via email with PDF attachment!");
-      } else {
-        alert(`Error sending email: ${result.error}`);
-      }
-    } catch (error) {
-      console.error("Error sending email:", error);
-      alert("Error sending email. Please try again.");
-    } finally {
-      setIsEmailSending(false);
-    }
-  };
 
   const handlePreviewInvoice = () => {
     console.log("Preview clicked - Items:", items);
@@ -760,182 +371,149 @@ export default function InvoiceMaker() {
               >
                 <X className="h-5 w-5 sm:h-6 sm:w-6" />
               </button>
-              </div>
+            </div>
             
             {/* Preview Content - Exact PDF Structure */}
             <div className="overflow-auto max-h-[calc(90vh-80px)] sm:max-h-[calc(85vh-80px)] lg:max-h-[calc(80vh-80px)] p-4 sm:p-6 lg:p-8">
               <div className="w-full" style={{minWidth: "800px"}}>
                 {/* Invoice Preview Content - Exact PDF HTML */}
-                <div 
-                  style={{
-                    fontFamily: "Arial, sans-serif",
-                    width: "100%",
-                    maxWidth: "100%",
-                    margin: "0 auto",
-                    padding: "20px",
-                    background: "white",
-                    color: "#333",
-                    WebkitFontSmoothing: "antialiased",
-                    MozOsxFontSmoothing: "grayscale",
-                    boxSizing: "border-box",
-                    minHeight: "fit-content",
-                    borderRadius: "8px",
-                    boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)"
-                  }}
-                >
-                  {/* Header Section - DRAFT INVOICE Layout */}
-                  <div style={{position: "relative", marginBottom: "30px"}}>
-                    {/* Top Row - Logo only */}
-                    <div style={{display: "flex", justifyContent: "flex-end", alignItems: "flex-start", marginBottom: "20px"}}>
-                      {/* Logo */}
-                      <div>
-                                                 {logo && (
-                           <img 
-                             src={logo} 
-                             alt="Company Logo" 
-                             style={{
-                               width: "100px", 
-                               height: "100px", 
-                               objectFit: "contain",
-                               borderRadius: "50%"
-                             }} 
-                           />
-                         )}
+                <div style={{margin: "0", background: "#f6f7fb", fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif", color: "#1f2937", padding: "28px"}}>
+                  <div style={{maxWidth: "860px", margin: "0 auto", background: "#fff", border: "1px solid #e5e7eb", borderRadius: "12px", overflow: "hidden"}}>
+                    {/* Blue line at top */}
+                    <div style={{height: "4px", background: "#2563eb", width: "100%"}}></div>
+                    {/* Top header */}
+                    <div style={{padding: "22px 28px", display: "flex", alignItems: "center", justifyContent: "space-between"}}>
+                      <div style={{fontSize: "28px", fontWeight: "700", color: "#374151"}}>Tax {invoiceType}</div>
+                      <div style={{display: "flex", alignItems: "center", gap: "12px"}}>
+                        {logo ? (
+                          <img src={logo} alt="Company Logo" style={{width: "120px", height: "120px", objectFit: "contain"}} />
+                        ) : (
+                          <div style={{width: "120px", height: "120px", background: "#f3f4f6", display: "flex", alignItems: "center", justifyContent: "center", borderRadius: "8px"}}>
+                            <span style={{fontSize: "14px", color: "#9ca3af"}}>Logo</span>
+                          </div>
+                        )}
                       </div>
                     </div>
                     
-                    {/* Bottom Row - Company Details and Invoice Details */}
-                    <div style={{display: "flex", justifyContent: "space-between", alignItems: "flex-start"}}>
-                      {/* Left Side - Company Details */}
+                    {/* Parties */}
+                    <div style={{padding: "0 28px 10px 28px", display: "flex", gap: "24px"}}>
                       <div style={{flex: 1}}>
-                        <div style={{fontSize: "32px", fontWeight: "bold", marginBottom: "8px", color: "#000", letterSpacing: "1px"}}>
-                          {invoiceType.toUpperCase()}
-                        </div>
-                        <div style={{fontSize: "18px", fontWeight: "500", color: "#000", marginBottom: "8px"}}>
-                          {fromDetails.split("\n")[0] || "Your Company Name"}
-                        </div>
-                        <div style={{fontSize: "12px", color: "#333", lineHeight: "1.3", whiteSpace: "pre-line"}}>
+                        <div style={{fontSize: "11px", color: "#9aa3b2", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: "8px"}}>From</div>
+                        <div style={{fontWeight: "700"}}>{fromDetails.split("\n")[0] || "Your Company Name"}</div>
+                        <div style={{fontSize: "14px", color: "#6b7280", lineHeight: "1.4", whiteSpace: "pre-line"}}>
                           {fromDetails || "Your Company Name\nYour Company Address\nCity, State ZIP\nCountry"}
                         </div>
                       </div>
                       
-                                             {/* Right Side - Invoice Details */}
-                       <div style={{textAlign: "right", flex: 1}}>
-                         <div style={{textAlign: "left", marginTop: "10px"}}>
-                           <div style={{fontSize: "12px", marginBottom: "4px", color: "#666"}}>Invoice Date</div>
-                           <div style={{fontSize: "14px", fontWeight: "600", color: "#000", marginBottom: "20px"}}>{new Date(invoiceDate).toLocaleDateString()}</div>
-                           <div style={{fontSize: "12px", marginBottom: "4px", color: "#666"}}>Invoice Number</div>
-                           <div style={{fontSize: "14px", fontWeight: "600", color: "#000"}}>{invoiceNumber}</div>
-                         </div>
-                       </div>
-                    </div>
-                    
-                  </div>
-            
-                  {/* Items Table */}
-                  <table style={{width: "100%", borderCollapse: "collapse", marginBottom: "20px", border: "1px solid #d1d5db", tableLayout: "fixed"}}>
-              <thead>
-                      <tr style={{background: "#f8f9fa", color: "#000"}}>
-                        <th style={{padding: "10px 8px", textAlign: "left", fontWeight: "bold", fontSize: "14px", border: "1px solid #d1d5db", width: "50%"}}>Description</th>
-                        <th style={{padding: "10px 8px", textAlign: "right", fontWeight: "bold", fontSize: "14px", border: "1px solid #d1d5db", width: "20%"}}>Unit Price</th>
-                        <th style={{padding: "10px 8px", textAlign: "center", fontWeight: "bold", fontSize: "14px", border: "1px solid #d1d5db", width: "15%"}}>Quantity</th>
-                        <th style={{padding: "10px 8px", textAlign: "right", fontWeight: "bold", fontSize: "14px", border: "1px solid #d1d5db", width: "15%"}}>Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                      {items && items.length > 0 ? (
-                        items.map((item, index) => {
-                          return (
-                            <tr key={item.id} style={{borderBottom: "1px solid #e5e7eb", background: "white"}}>
-                              <td style={{padding: "10px 8px", fontSize: "14px", color: "#111827", border: "1px solid #d1d5db", verticalAlign: "top"}}>
-                                {item.name || ""}
-                              </td>
-                              <td style={{padding: "10px 8px", textAlign: "right", fontSize: "14px", color: "#111827", border: "1px solid #d1d5db", verticalAlign: "top"}}>
-                                ${item.price.toFixed(2)}
-                              </td>
-                              <td style={{padding: "10px 8px", textAlign: "center", fontSize: "14px", color: "#111827", border: "1px solid #d1d5db", verticalAlign: "top"}}>
-                                {item.quantity}
-                              </td>
-                              <td style={{padding: "10px 8px", textAlign: "right", fontSize: "14px", fontWeight: "bold", color: "#111827", border: "1px solid #d1d5db", verticalAlign: "top"}}>
-                                ${item.amount.toFixed(2)}
-                              </td>
-                    </tr>
-                          );
-                        })
-                      ) : (
-                        <tr>
-                          <td colSpan={4} style={{padding: "32px", textAlign: "center", color: "#6b7280", border: "1px solid #d1d5db"}}>
-                            No items added yet. Please add items in the form above.
-                          </td>
-                        </tr>
-                      )}
-              </tbody>
-            </table>
-            
-                  {/* Summary Section */}
-                  <div style={{display: "flex", justifyContent: "flex-end", alignItems: "flex-end", marginBottom: "30px"}}>
-                    <div style={{textAlign: "right", minWidth: "200px"}}>
-                      <div style={{fontSize: "14px", marginBottom: "8px", display: "flex", justifyContent: "space-between"}}>
-                        <span style={{color: "#111827", fontWeight: "600"}}>Subtotal</span>
-                        <span style={{color: "#111827", fontWeight: "bold"}}>${subtotal.toFixed(2)}</span>
-                      </div>
-                      {discount > 0 && (
-                        <div style={{fontSize: "14px", marginBottom: "8px", display: "flex", justifyContent: "space-between"}}>
-                          <span style={{color: "#111827", fontWeight: "600"}}>Discount</span>
-                          <span style={{color: "#111827", fontWeight: "bold"}}>-${discount.toFixed(2)}</span>
-                        </div>
-                      )}
-                      {shipping > 0 && (
-                        <div style={{fontSize: "14px", marginBottom: "8px", display: "flex", justifyContent: "space-between"}}>
-                          <span style={{color: "#111827", fontWeight: "600"}}>Shipping</span>
-                          <span style={{color: "#111827", fontWeight: "bold"}}>${shipping.toFixed(2)}</span>
-                        </div>
-                      )}
-                      {taxRate > 0 && (
-                        <div style={{fontSize: "14px", marginBottom: "8px", display: "flex", justifyContent: "space-between"}}>
-                          <span style={{color: "#111827", fontWeight: "600"}}>Tax ({taxRate}%)</span>
-                          <span style={{color: "#111827", fontWeight: "bold"}}>${taxAmount.toFixed(2)}</span>
-                        </div>
-                      )}
-                      <div style={{fontSize: "14px", marginBottom: "8px", display: "flex", justifyContent: "space-between", borderTop: "1px solid #d1d5db", paddingTop: "8px"}}>
-                        <span style={{color: "#111827", fontWeight: "bold"}}>TOTAL</span>
-                        <span style={{color: "#111827", fontWeight: "bold"}}>${total.toFixed(2)}</span>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Payment Advice Section */}
-                  <div style={{borderTop: "2px dashed #ccc", paddingTop: "20px", marginTop: "20px"}}>
-                    <div style={{display: "flex", alignItems: "center", marginBottom: "15px"}}>
-                      <div style={{fontSize: "16px", fontWeight: "bold", color: "#000", marginRight: "10px"}}>PAYMENT ADVICE</div>
-                      <div style={{fontSize: "20px", color: "#ccc"}}>✂️</div>
-                </div>
-                    
-                    <div style={{display: "flex", justifyContent: "space-between", marginBottom: "20px"}}>
                       <div style={{flex: 1}}>
-                        <div style={{fontSize: "12px", marginBottom: "4px", color: "#666"}}>To:</div>
-                        <div style={{fontSize: "12px", color: "#333", lineHeight: "1.3", whiteSpace: "pre-line"}}>
-                          {toDetails || "Client Name\nClient Address\nCity, State ZIP\nCountry"}
+                        <div style={{fontSize: "11px", color: "#9aa3b2", textTransform: "uppercase", letterSpacing: ".08em", marginBottom: "8px"}}>For</div>
+                        <div style={{fontWeight: "700"}}>{toDetails.split("\n")[0] || "Client Name"}</div>
+                        <div style={{fontSize: "14px", color: "#6b7280", lineHeight: "1.4", whiteSpace: "pre-line"}}>
+                          {toDetails ? toDetails.split("\n").slice(1).join("\n") : "Client Address\nCity, State ZIP\nCountry"}
                         </div>
                       </div>
-                      <div style={{flex: 1, textAlign: "right"}}>
-                        <div style={{fontSize: "12px", color: "#333", whiteSpace: "pre-line"}}>
-                          {extraNotes || "Note: The sender will write additional details here"}
-                </div>
-              </div>
-            </div>
-            
-                    <div style={{marginBottom: "20px"}}>
-                      <div style={{fontSize: "12px", marginBottom: "4px", color: "#666"}}>
-                        Amount Enclosed: <span style={{fontWeight: "bold", color: "#000"}}>${total.toFixed(2)}</span>
-                      </div>
-                      <div style={{borderBottom: "1px solid #333", height: "20px", marginBottom: "4px"}}></div>
-                      <div style={{fontSize: "10px", color: "#666"}}>Enter the amount you are paying above</div>
                     </div>
-         
-                    <div style={{fontSize: "10px", color: "#666", textAlign: "center"}}>
-                      Registered Office: {fromDetails || "123 Progress Lane, Seattle, Washington, 98101, United States"}
-          </div>
+                    
+                    {/* Horizontal line under parties */}
+                    <div style={{height: "1px", background: "#000", margin: "0 28px 18px 28px"}}></div>
+                    
+                    {/* Invoice meta */}
+                    <div style={{padding: "6px 28px 18px 28px", display: "grid", gridTemplateColumns: "180px 1fr", rowGap: "6px", maxWidth: "520px"}}>
+                      <div style={{color: "#6b7280"}}>Number</div><div style={{fontWeight: "600"}}>{invoiceNumber}</div>
+                      <div style={{color: "#6b7280"}}>Date</div><div>{new Date(invoiceDate).toLocaleDateString()}</div>
+                      <div style={{color: "#6b7280"}}>Terms</div><div>{terms}</div>
+                      <div style={{color: "#6b7280"}}>Due</div><div>{(() => {
+                        const invoiceDateObj = new Date(invoiceDate);
+                        const daysToAdd = terms === "Due On Receipt" ? 0 : terms === "Net 15" ? 15 : terms === "Net 30" ? 30 : 60;
+                        const dueDate = new Date(invoiceDateObj.getTime() + daysToAdd * 24 * 60 * 60 * 1000);
+                        return dueDate.toLocaleDateString();
+                      })()}</div>
+                    </div>
+                    
+                    {/* Table header */}
+                    <div style={{margin: "8px 28px 0 28px", background: "#2563eb", color: "#fff", padding: "12px 28px", fontWeight: "700", display: "flex"}}>
+                      <div style={{flex: 1}}>Description</div>
+                      <div style={{width: "140px", textAlign: "right"}}>Price</div>
+                      <div style={{width: "100px", textAlign: "right"}}>Qty</div>
+                      <div style={{width: "140px", textAlign: "right"}}>Amount</div>
+                    </div>
+                    
+                    {/* Table rows */}
+                    <div style={{padding: "0 36px"}}>
+                      {items && items.length > 0 ? (
+                        items.map((item) => (
+                          <div key={item.id} style={{display: "flex", padding: "14px 0"}}>
+                            <div style={{flex: 1}}>
+                              <div style={{fontWeight: "700"}}>{item.name || ""}</div>
+                            </div>
+                            <div style={{width: "140px", textAlign: "right"}}>${item.price.toFixed(2)}</div>
+                            <div style={{width: "100px", textAlign: "right"}}>{item.quantity}</div>
+                            <div style={{width: "140px", textAlign: "right", fontWeight: "600"}}>${item.amount.toFixed(2)}</div>
+                          </div>
+                        ))
+                      ) : (
+                        <div style={{padding: "32px", textAlign: "center", color: "#6b7280"}}>
+                          No items added yet. Please add items in the form above.
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Totals */}
+                    <div style={{padding: "8px 36px 6px 36px"}}>
+                      <div style={{height: "1px", background: "#2563eb", marginBottom: "8px"}}></div>
+                      <div style={{display: "flex", justifyContent: "flex-end"}}>
+                        <div style={{width: "420px"}}>
+                          <div style={{display: "flex", padding: "4px 0", justifyContent: "flex-end"}}>
+                            <div style={{width: "280px", display: "flex", justifyContent: "space-between"}}>
+                              <div style={{color: "#6b7280"}}>Subtotal</div>
+                              <div style={{fontWeight: "600"}}>${subtotal.toFixed(2)}</div>
+                            </div>
+                          </div>
+                          {discount > 0 && (
+                            <div style={{display: "flex", padding: "4px 0", justifyContent: "flex-end"}}>
+                              <div style={{width: "280px", display: "flex", justifyContent: "space-between"}}>
+                                <div style={{color: "#6b7280"}}>Discount</div>
+                                <div style={{fontWeight: "600"}}>-${discount.toFixed(2)}</div>
+                              </div>
+                            </div>
+                          )}
+                          {taxRate > 0 && (
+                            <div style={{display: "flex", padding: "4px 0", justifyContent: "flex-end"}}>
+                              <div style={{width: "280px", display: "flex", justifyContent: "space-between"}}>
+                                <div style={{color: "#6b7280"}}>Tax ({taxRate}%)</div>
+                                <div style={{fontWeight: "600"}}>${taxAmount.toFixed(2)}</div>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      <div style={{height: "1px", background: "#2563eb", margin: "8px 0"}}></div>
+                      <div style={{display: "flex", justifyContent: "flex-end"}}>
+                        <div style={{width: "420px"}}>
+                          <div style={{display: "flex", padding: "4px 0", fontWeight: "800", justifyContent: "flex-end"}}>
+                            <div style={{width: "280px", display: "flex", justifyContent: "space-between"}}>
+                              <div>Total</div>
+                              <div>${total.toFixed(2)}</div>
+                            </div>
+                          </div>
+                          <div style={{display: "flex", padding: "4px 0", fontWeight: "900", justifyContent: "flex-end"}}>
+                            <div style={{width: "280px", display: "flex", justifyContent: "space-between"}}>
+                              <div>Balance Due</div>
+                              <div style={{fontSize: "18px"}}>${total.toFixed(2)}</div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Notes */}
+                    <div style={{padding: "18px 28px 28px 28px"}}>
+                      <div style={{height: "1px", background: "#000", marginBottom: "12px"}}></div>
+                      <div style={{fontWeight: "700", marginBottom: "6px"}}>Notes</div>
+                      <div style={{color: "#4b5563", fontSize: "14px", lineHeight: "1.7"}}>
+                        {extraNotes || "Thank you for your business!"}
+                      </div>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -1033,19 +611,6 @@ Phone: (02) 9123 4567`}
                     />
                   </div>
 
-                  <div>
-                    <label className="block text-sm font-medium text-white/80 mb-3 flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      Client Email
-                    </label>
-                    <input
-                      type="email"
-                      value={clientEmail}
-                      onChange={(e) => setClientEmail(e.target.value)}
-                      placeholder="client@example.com"
-                      className="w-full px-4 py-3 glass-input rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400/50"
-                    />
-                  </div>
                 </div>
 
                 {/* Right Column */}
@@ -1205,16 +770,14 @@ Phone: (02) 9123 4567`}
 
                       {/* Remove Button - Full width on mobile, 1 col on desktop */}
                       <div className="md:col-span-1">
-                        {items.length > 1 && (
-                          <button
-                            onClick={() => removeItem(item.id)}
-                            className="w-full md:w-auto text-red-400 hover:text-red-300 p-3 md:p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 transition-all duration-300 flex items-center justify-center gap-2 md:gap-0"
-                            title="Remove item"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                            <span className="md:hidden">Remove Item</span>
-                          </button>
-                        )}
+                        <button
+                          onClick={() => removeItem(item.id)}
+                          className="w-full md:w-auto text-red-400 hover:text-red-300 p-3 md:p-2 rounded-lg bg-red-500/10 hover:bg-red-500/20 transition-all duration-300 flex items-center justify-center gap-2 md:gap-0"
+                          title="Remove item"
+                        >
+                          <Trash2 className="h-4 w-4" />
+                          <span className="md:hidden">Remove Item</span>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -1247,10 +810,8 @@ Phone: (02) 9123 4567`}
               subtotal={subtotal}
               taxRate={taxRate}
               discount={discount}
-              shipping={shipping}
               onTaxRateChange={setTaxRate}
               onDiscountChange={setDiscount}
-              onShippingChange={setShipping}
             />
 
             {/* Action Buttons */}
@@ -1262,27 +823,6 @@ Phone: (02) 9123 4567`}
               >
                 <Download className="h-5 w-5" />
                 Generate Invoice
-              </button>
-              <button
-                onClick={handleSendEmail}
-                disabled={isEmailSending}
-                className={`w-full flex items-center justify-center gap-3 px-6 py-4 rounded-xl transition-all duration-300 font-semibold shadow-lg hover:shadow-xl ${
-                  isEmailSending
-                    ? "bg-gray-500 cursor-not-allowed opacity-70"
-                    : "bg-gradient-to-r from-blue-500 to-cyan-600 hover:from-blue-600 hover:to-cyan-700"
-                }`}
-              >
-                {isEmailSending ? (
-                  <>
-                    <Loader2 className="h-5 w-5 animate-spin" />⚡ Ultra-Fast
-                    Sending...
-                  </>
-                ) : (
-                  <>
-                    <Mail className="h-5 w-5" />
-                    Send Invoice
-                  </>
-                )}
               </button>
               <button
                 onClick={handlePreviewInvoice}

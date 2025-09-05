@@ -1,28 +1,24 @@
 'use client';
 
-import { Calculator, Percent, DollarSign, Minus, Truck } from 'lucide-react';
+import { Calculator, Percent, DollarSign, Minus } from 'lucide-react';
 
 interface TaxDiscountSectionProps {
   subtotal: number;
   taxRate: number;
   discount: number;
-  shipping: number;
   onTaxRateChange: (rate: number) => void;
   onDiscountChange: (discount: number) => void;
-  onShippingChange: (shipping: number) => void;
 }
 
 export default function TaxDiscountSection({
   subtotal,
   taxRate,
   discount,
-  shipping,
   onTaxRateChange,
-  onDiscountChange,
-  onShippingChange
+  onDiscountChange
 }: TaxDiscountSectionProps) {
   const taxAmount = (subtotal - discount) * (taxRate / 100);
-  const total = subtotal - discount + taxAmount + shipping;
+  const total = subtotal - discount + taxAmount;
 
   return (
     <div className="glass-card rounded-xl p-6 space-y-6">
@@ -62,27 +58,6 @@ export default function TaxDiscountSection({
           <span className="text-red-400 font-medium">-${discount.toFixed(2)}</span>
         </div>
 
-        <div className="flex justify-between items-center p-3 glass rounded-lg">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 glass rounded-md flex items-center justify-center">
-              <Truck className="h-4 w-4 text-green-400" />
-            </div>
-            <span className="text-white/80 text-sm">Shipping:</span>
-            <div className="relative">
-              <DollarSign className="absolute left-2 top-1/2 transform -translate-y-1/2 h-3 w-3 text-white/50" />
-              <input
-                type="number"
-                value={shipping}
-                onChange={(e) => onShippingChange(parseFloat(e.target.value) || 0)}
-                min="0"
-                step="0.01"
-                className="w-20 pl-6 pr-2 py-1 text-sm glass-input rounded-md text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-green-400/50"
-                placeholder="0.00"
-              />
-            </div>
-          </div>
-          <span className="text-green-400 font-medium">${shipping.toFixed(2)}</span>
-        </div>
 
         <div className="flex justify-between items-center p-3 glass rounded-lg">
           <div className="flex items-center gap-2">
