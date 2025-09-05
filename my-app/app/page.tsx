@@ -102,7 +102,7 @@ export default function InvoiceMaker() {
 
   const subtotal = items.reduce((sum, item) => sum + item.amount, 0);
   const taxAmount = (subtotal - discount) * (taxRate / 100);
-  const total = subtotal - discount + taxAmount;
+  const total = subtotal - discount + taxAmount + shipping;
 
   const handleDownloadInvoice = async () => {
     try {

@@ -137,7 +137,12 @@ export const generateInvoiceEmailHTML = (
   fromDetails: string,
   toDetails: string,
   total: number,
-  invoiceDate: string
+  invoiceDate: string,
+  subtotal: number,
+  discount: number,
+  shipping: number,
+  taxRate: number,
+  taxAmount: number
 ): string => {
   const companyName = fromDetails.split('\n')[0] || 'Company Name';
   const clientName = toDetails.split('\n')[0] || 'Client Name';
@@ -349,6 +354,28 @@ export const generateInvoiceEmailHTML = (
               <span class="detail-value">Net 15</span>
             </div>
             <div class="detail-row">
+              <span class="detail-label">SUBTOTAL:</span>
+              <span class="detail-value">$${subtotal.toFixed(2)}</span>
+            </div>
+            ${discount > 0 ? `
+            <div class="detail-row">
+              <span class="detail-label">DISCOUNT:</span>
+              <span class="detail-value">-$${discount.toFixed(2)}</span>
+            </div>
+            ` : ''}
+            ${shipping > 0 ? `
+            <div class="detail-row">
+              <span class="detail-label">SHIPPING:</span>
+              <span class="detail-value">$${shipping.toFixed(2)}</span>
+            </div>
+            ` : ''}
+            ${taxRate > 0 ? `
+            <div class="detail-row">
+              <span class="detail-label">TAX (${taxRate}%):</span>
+              <span class="detail-value">$${taxAmount.toFixed(2)}</span>
+            </div>
+            ` : ''}
+            <div class="detail-row" style="border-top: 2px solid #1e3a8a; font-weight: bold; font-size: 16px;">
               <span class="detail-label">TOTAL AMOUNT:</span>
               <span class="detail-value total-amount">$${total.toFixed(2)}</span>
             </div>

@@ -72,7 +72,12 @@ export async function POST(request: NextRequest) {
       fromDetails,
       toDetails,
       finalTotal,
-      invoiceDate
+      invoiceDate,
+      subtotal,
+      discount,
+      shipping,
+      taxRate,
+      taxAmount
     );
 
     // Prepare attachments
