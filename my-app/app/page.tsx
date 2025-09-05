@@ -203,13 +203,8 @@ export default function InvoiceMaker() {
             </tbody>
           </table>
 
-          <!-- Summary Section and Due Date -->
-          <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px;">
-            <div style="text-align: left;">
-              <div style="font-size: 14px; color: #333; text-rendering: optimizeLegibility;">
-                Due Date: ${new Date(invoiceDate).toLocaleDateString()}
-                </div>
-            </div>
+          <!-- Summary Section -->
+          <div style="display: flex; justify-content: flex-end; align-items: flex-end; margin-bottom: 30px;">
             <div style="text-align: right; min-width: 200px;">
               <div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; text-rendering: optimizeLegibility;">
                 <span style="color: #111827; font-weight: 600;">Subtotal</span>
@@ -509,13 +504,8 @@ export default function InvoiceMaker() {
               </tbody>
             </table>
             
-          <!-- Summary Section and Due Date -->
-          <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 30px;">
-            <div style="text-align: left;">
-              <div style="font-size: 14px; color: #333; text-rendering: optimizeLegibility;">
-                Due Date: ${new Date(invoiceDate).toLocaleDateString()}
-                  </div>
-              </div>
+          <!-- Summary Section -->
+          <div style="display: flex; justify-content: flex-end; align-items: flex-end; margin-bottom: 30px;">
             <div style="text-align: right; min-width: 200px;">
               <div style="font-size: 14px; margin-bottom: 8px; display: flex; justify-content: space-between; text-rendering: optimizeLegibility;">
                 <span style="color: #111827; font-weight: 600;">Subtotal</span>
@@ -882,13 +872,8 @@ export default function InvoiceMaker() {
               </tbody>
             </table>
             
-                  {/* Summary Section and Due Date */}
-                  <div style={{display: "flex", justifyContent: "space-between", alignItems: "flex-end", marginBottom: "30px"}}>
-                    <div style={{textAlign: "left"}}>
-                      <div style={{fontSize: "14px", color: "#333"}}>
-                        Due Date: {new Date(invoiceDate).toLocaleDateString()}
-                      </div>
-                    </div>
+                  {/* Summary Section */}
+                  <div style={{display: "flex", justifyContent: "flex-end", alignItems: "flex-end", marginBottom: "30px"}}>
                     <div style={{textAlign: "right", minWidth: "200px"}}>
                       <div style={{fontSize: "14px", marginBottom: "8px", display: "flex", justifyContent: "space-between"}}>
                         <span style={{color: "#111827", fontWeight: "600"}}>Subtotal</span>
