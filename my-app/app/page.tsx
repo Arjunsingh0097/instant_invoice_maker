@@ -42,6 +42,7 @@ export default function InvoiceMaker() {
   const [taxRate, setTaxRate] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [showPreview, setShowPreview] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [items, setItems] = useState<InvoiceItem[]>([{
     id: "1",
     name: "",
@@ -343,7 +344,8 @@ export default function InvoiceMaker() {
       // Download the PDF
       pdf.save(`invoice-${invoiceNumber}.pdf`);
 
-      alert("Invoice downloaded successfully as PDF!");
+      // Show success modal
+      setShowSuccessModal(true);
     } catch (error) {
       console.error("Error generating PDF:", error);
       alert("Error generating PDF. Please try again.");
@@ -841,6 +843,31 @@ Phone: (02) 9123 4567`}
           </div>
         </div>
       </div>
+
+      {/* Success Modal */}
+      {showSuccessModal && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-2xl p-8 max-w-md w-full mx-4 shadow-2xl transform transition-all">
+            <div className="text-center">
+              <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                </svg>
+              </div>
+              <h3 className="text-2xl font-bold text-gray-900 mb-2">Success!</h3>
+              <p className="text-gray-600 mb-6">
+                Your invoice has been downloaded successfully as a PDF.
+              </p>
+              <button
+                onClick={() => setShowSuccessModal(false)}
+                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 text-white py-3 px-6 rounded-xl font-semibold hover:from-purple-700 hover:to-blue-700 transition-all duration-200 transform hover:scale-105"
+              >
+                Got it!
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
