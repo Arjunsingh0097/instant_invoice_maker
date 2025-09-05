@@ -2,23 +2,11 @@ import nodemailer from 'nodemailer';
 
 // Email configuration using environment variables
 const emailConfig = {
-  host: 'smtp.gmail.com',
-  port: 587,
-  secure: false, // true for 465, false for other ports
+  service: 'gmail',
   auth: {
     user: process.env.EMAIL_USER || 'arjunkondal00.7@gmail.com',
     pass: process.env.EMAIL_PASS || 'dspq kmok dpep oerh' // Gmail app password
-  },
-  tls: {
-    rejectUnauthorized: false
-  },
-  connectionTimeout: 60000, // 60 seconds
-  greetingTimeout: 30000, // 30 seconds
-  socketTimeout: 60000, // 60 seconds
-  pool: true,
-  maxConnections: 5,
-  maxMessages: 100,
-  rateLimit: 10 // max 10 emails per second
+  }
 };
 
 // Create transporter
@@ -97,26 +85,34 @@ export const sendEmail = async (emailData: EmailData): Promise<boolean> => {
       attachmentsCount: mailOptions.attachments.length
     });
 
-    // Use retry logic for email sending
-    await retryWithBackoff(async () => {
-      // Verify connection before sending
-      console.log('Verifying SMTP connection...');
-      await transporter.verify();
-      console.log('✅ SMTP connection verified successfully');
-      
-      console.log('Sending email...');
-      const info = await transporter.sendMail(mailOptions);
-      console.log('✅ Email sent successfully:', info.messageId);
-      return info;
-    }, 3, 2000); // 3 retries with 2 second base delay
-
+    // Verify connection first
+    console.log('Verifying SMTP connection...');
+    await transporter.verify();
+    console.log('✅ SMTP connection verified successfully');
+    
+    // Send email directly (no retry for now to simplify debugging)
+    console.log('Sending email...');
+    const info = await transporter.sendMail(mailOptions);
+    console.log('✅ Email sent successfully:', info.messageId);
     console.log('=== EMAIL SEND SUCCESS ===');
     return true;
   } catch (error) {
-    console.error('❌ Email send failed after all retries:', error);
+    console.error('❌ Email send failed:', error);
     if (error instanceof Error) {
       console.error('Error message:', error.message);
+      console.error('Error name:', error.name);
       console.error('Error stack:', error.stack);
+      
+      // Check for specific Gmail errors
+      if (error.message.includes('Invalid login')) {
+        console.error('❌ Gmail authentication failed - check email credentials');
+      } else if (error.message.includes('Less secure app access')) {
+        console.error('❌ Gmail requires app password - enable 2FA and use app password');
+      } else if (error.message.includes('Connection timeout')) {
+        console.error('❌ Connection timeout - check network or Gmail server status');
+      } else if (error.message.includes('Rate limit exceeded')) {
+        console.error('❌ Rate limit exceeded - too many emails sent');
+      }
     }
     console.log('=== EMAIL SEND FAILED ===');
     return false;
