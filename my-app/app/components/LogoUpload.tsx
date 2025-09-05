@@ -102,7 +102,7 @@ export default function LogoUpload({ onLogoChange }: LogoUploadProps) {
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
-          className={`glass-card rounded-xl p-8 text-center cursor-pointer transition-all duration-300 group ${
+          className={`glass-card rounded-xl p-8 text-center cursor-pointer transition-all duration-300 group h-full min-h-[300px] flex flex-col justify-center ${
             isDragOver ? 'scale-105 neon-border' : 'hover:scale-102 hover:neon-border'
           }`}
         >

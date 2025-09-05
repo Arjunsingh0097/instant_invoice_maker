@@ -570,9 +570,9 @@ export default function InvoiceMaker() {
                 </h2>
               </div>
 
-              <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Left Column */}
-                <div className="space-y-6">
+              <div className="space-y-6">
+                {/* Top Row - Document Type and Payment Terms */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   <div>
                     <label className="block text-sm font-medium text-white/80 mb-3">
                       Document Type
@@ -580,63 +580,13 @@ export default function InvoiceMaker() {
                     <select
                       value={invoiceType}
                       onChange={(e) => setInvoiceType(e.target.value)}
-                      className="w-full px-4 py-3 glass-input rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-400/50 [&>option]:bg-gray-800 [&>option]:text-white"
+                      className="w-full px-4 py-3 glass-input text-white focus:outline-none focus:ring-2 focus:ring-purple-400/50"
+                      style={{ fontSize: '16px' }}
                     >
                       <option value="Invoice">Invoice</option>
                       <option value="Quote">Quote</option>
                       <option value="Estimate">Estimate</option>
                     </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-white/80 mb-3 flex items-center gap-2">
-                      <Building className="h-4 w-4" />
-                      From (Sender)
-                    </label>
-                    <textarea
-                      value={fromDetails}
-                      onChange={(e) => setFromDetails(e.target.value)}
-                      placeholder={`ABC Logistics Pty Ltd
-123 Example Street
-Brisbane QLD 4000
-Phone: (07) 3123 4567`}
-                      className="w-full px-4 py-3 glass-input rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400/50 h-32 resize-none"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-white/80 mb-3 flex items-center gap-2">
-                      <User className="h-4 w-4" />
-                      To (Recipient)
-                    </label>
-                    <textarea
-                      value={toDetails}
-                      onChange={(e) => setToDetails(e.target.value)}
-                      placeholder={`John Smith
-45 Sample Avenue
-Sydney NSW 2000
-Phone: (02) 9123 4567`}
-                      className="w-full px-4 py-3 glass-input rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400/50 h-32 resize-none"
-                    />
-                  </div>
-
-                </div>
-
-                {/* Right Column */}
-                <div className="space-y-6">
-                  <LogoUpload onLogoChange={setLogo} />
-
-                  <div>
-                    <label className="block text-sm font-medium text-white/80 mb-3">
-                      Invoice Number
-                    </label>
-                    <input
-                      type="text"
-                      value={invoiceNumber}
-                      onChange={(e) => setInvoiceNumber(e.target.value)}
-                      className="w-full px-4 py-3 glass-input rounded-xl text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-400/50"
-                      placeholder="INV-001"
-                    />
                   </div>
 
                   <div>
@@ -646,13 +596,76 @@ Phone: (02) 9123 4567`}
                     <select
                       value={terms}
                       onChange={(e) => setTerms(e.target.value)}
-                      className="w-full px-4 py-3 glass-input rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-400/50 [&>option]:bg-gray-800 [&>option]:text-white"
+                      className="w-full px-4 py-3 glass-input text-white focus:outline-none focus:ring-2 focus:ring-purple-400/50"
+                      style={{ fontSize: '16px' }}
                     >
                       <option value="Due On Receipt">Due On Receipt</option>
                       <option value="Net 15">Net 15</option>
                       <option value="Net 30">Net 30</option>
                       <option value="Net 60">Net 60</option>
                     </select>
+                  </div>
+                </div>
+
+                {/* Middle Section - Sender, Receiver, and Logo */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-stretch">
+                  {/* Left Column - Sender and Receiver */}
+                  <div className="space-y-6">
+                    <div>
+                      <label className="text-sm font-medium text-white/80 mb-3 flex items-center gap-2">
+                        <Building className="h-4 w-4" />
+                        From (Sender)
+                      </label>
+                      <textarea
+                        value={fromDetails}
+                        onChange={(e) => setFromDetails(e.target.value)}
+                        placeholder={`ABC Logistics Pty Ltd
+123 Example Street
+Brisbane QLD 4000
+Phone: (07) 3123 4567`}
+                        className="w-full px-4 py-3 glass-input text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400/50 h-32"
+                        style={{ fontSize: '16px' }}
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium text-white/80 mb-3 flex items-center gap-2">
+                        <User className="h-4 w-4" />
+                        To (Recipient)
+                      </label>
+                      <textarea
+                        value={toDetails}
+                        onChange={(e) => setToDetails(e.target.value)}
+                        placeholder={`John Smith
+45 Sample Avenue
+Sydney NSW 2000
+Phone: (02) 9123 4567`}
+                        className="w-full px-4 py-3 glass-input text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-blue-400/50 h-32"
+                        style={{ fontSize: '16px' }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Right Column - Logo Upload (Full Height) */}
+                  <div className="flex flex-col h-full min-h-[300px]">
+                    <LogoUpload onLogoChange={setLogo} />
+                  </div>
+                </div>
+
+                {/* Bottom Row - Invoice Number and Invoice Date */}
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                  <div>
+                    <label className="block text-sm font-medium text-white/80 mb-3">
+                      Invoice Number
+                    </label>
+                    <input
+                      type="text"
+                      value={invoiceNumber}
+                      onChange={(e) => setInvoiceNumber(e.target.value)}
+                      className="w-full px-4 py-3 glass-input text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-400/50"
+                      placeholder="INV-001"
+                      style={{ fontSize: '16px' }}
+                    />
                   </div>
 
                   <div>
@@ -665,7 +678,8 @@ Phone: (02) 9123 4567`}
                         type="date"
                         value={invoiceDate}
                         onChange={(e) => setInvoiceDate(e.target.value)}
-                        className="w-full px-4 py-3 glass-input rounded-xl text-white focus:outline-none focus:ring-2 focus:ring-purple-400/50"
+                        className="w-full px-4 py-3 glass-input text-white focus:outline-none focus:ring-2 focus:ring-purple-400/50"
+                        style={{ fontSize: '16px' }}
                       />
                     </div>
                   </div>

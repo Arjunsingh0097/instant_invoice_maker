@@ -66,12 +66,58 @@ body::before {
   -webkit-backdrop-filter: blur(10px);
   border: 1px solid rgba(255, 255, 255, 0.2);
   transition: all 0.3s ease;
+  /* Safari fallback */
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 12px;
+  color: white;
+  font-size: 16px; /* Prevents zoom on iOS Safari */
 }
 
 .glass-input:focus {
   background: rgba(255, 255, 255, 0.12);
   border-color: rgba(102, 126, 234, 0.6);
   box-shadow: 0 0 20px rgba(102, 126, 234, 0.3);
+  outline: none;
+}
+
+/* Safari-specific fixes for form elements */
+.glass-input::-webkit-input-placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  opacity: 1;
+}
+
+.glass-input::-moz-placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  opacity: 1;
+}
+
+.glass-input:-ms-input-placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  opacity: 1;
+}
+
+.glass-input::placeholder {
+  color: rgba(255, 255, 255, 0.5);
+  opacity: 1;
+}
+
+/* Safari select styling */
+select.glass-input {
+  background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6,9 12,15 18,9'%3e%3c/polyline%3e%3c/svg%3e");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 16px;
+  padding-right: 40px;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+/* Safari textarea styling */
+textarea.glass-input {
+  resize: none;
+  -webkit-appearance: none;
+  appearance: none;
 }
 
 /* Custom scrollbar */
@@ -107,6 +153,38 @@ input[type="number"]::-webkit-outer-spin-button {
 
 input[type="number"] {
   -moz-appearance: textfield;
+}
+
+/* Safari form field fixes */
+input, select, textarea {
+  -webkit-appearance: none;
+  appearance: none;
+  border-radius: 12px;
+}
+
+/* Safari input focus fixes */
+input:focus, select:focus, textarea:focus {
+  outline: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+/* Safari date input styling */
+input[type="date"] {
+  color-scheme: dark;
+  -webkit-appearance: none;
+  appearance: none;
+}
+
+input[type="date"]::-webkit-calendar-picker-indicator {
+  filter: invert(1);
+  cursor: pointer;
+}
+
+/* Safari select option styling */
+select option {
+  background-color: #1a1a2e;
+  color: white;
+  padding: 8px;
 }
 
 /* Animations */
