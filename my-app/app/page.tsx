@@ -571,7 +571,7 @@ export default function InvoiceMaker() {
               </div>
 
               <div className="space-y-6">
-                {/* Top Row - Document Type and Payment Terms */}
+                {/* Top Row - Document Type and Invoice Number */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   <div>
                     <label className="block text-sm font-medium text-white/80 mb-3">
@@ -591,19 +591,16 @@ export default function InvoiceMaker() {
 
                   <div>
                     <label className="block text-sm font-medium text-white/80 mb-3">
-                      Payment Terms
+                      Invoice Number
                     </label>
-                    <select
-                      value={terms}
-                      onChange={(e) => setTerms(e.target.value)}
-                      className="w-full px-4 py-3 glass-input text-white focus:outline-none focus:ring-2 focus:ring-purple-400/50"
+                    <input
+                      type="text"
+                      value={invoiceNumber}
+                      onChange={(e) => setInvoiceNumber(e.target.value)}
+                      className="w-full px-4 py-3 glass-input text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-400/50"
+                      placeholder="INV-001"
                       style={{ fontSize: '16px' }}
-                    >
-                      <option value="Due On Receipt">Due On Receipt</option>
-                      <option value="Net 15">Net 15</option>
-                      <option value="Net 30">Net 30</option>
-                      <option value="Net 60">Net 60</option>
-                    </select>
+                    />
                   </div>
                 </div>
 
@@ -652,24 +649,10 @@ Phone: (02) 9123 4567`}
                   </div>
                 </div>
 
-                {/* Bottom Row - Invoice Number and Invoice Date */}
+                {/* Bottom Row - Invoice Date and Payment Terms */}
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                   <div>
-                    <label className="block text-sm font-medium text-white/80 mb-3">
-                      Invoice Number
-                    </label>
-                    <input
-                      type="text"
-                      value={invoiceNumber}
-                      onChange={(e) => setInvoiceNumber(e.target.value)}
-                      className="w-full px-4 py-3 glass-input text-white placeholder-white/50 focus:outline-none focus:ring-2 focus:ring-purple-400/50"
-                      placeholder="INV-001"
-                      style={{ fontSize: '16px' }}
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-sm font-medium text-white/80 mb-3 flex items-center gap-2">
+                    <label className="text-sm font-medium text-white/80 mb-3 flex items-center gap-2">
                       <Calendar className="h-4 w-4" />
                       Invoice Date
                     </label>
@@ -682,6 +665,23 @@ Phone: (02) 9123 4567`}
                         style={{ fontSize: '16px' }}
                       />
                     </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-medium text-white/80 mb-3">
+                      Payment Terms
+                    </label>
+                    <select
+                      value={terms}
+                      onChange={(e) => setTerms(e.target.value)}
+                      className="w-full px-4 py-3 glass-input text-white focus:outline-none focus:ring-2 focus:ring-purple-400/50"
+                      style={{ fontSize: '16px' }}
+                    >
+                      <option value="Due On Receipt">Due On Receipt</option>
+                      <option value="Net 15">Net 15</option>
+                      <option value="Net 30">Net 30</option>
+                      <option value="Net 60">Net 60</option>
+                    </select>
                   </div>
                 </div>
               </div>
